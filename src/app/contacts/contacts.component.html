@@ -1,0 +1,85 @@
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <h1>Messages <p-badge [value]="12" severity="success" />
+            </h1>
+        </div>
+    </div>
+    <div class="search-bar">
+
+        <p-iconField iconPosition="left">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input type="text" pInputText placeholder="Search" />
+        </p-iconField>
+    </div>
+
+    <p-scrollPanel class="contacts-panel">
+        <div class="contacts">
+            <p-dataView #dv [value]="contact">
+                <ng-template pTemplate="list" let-contact>
+                    <div class="grid grid-nogutter">
+                        <div class="col-12" *ngFor="let item of contact; let first = first" class="col-12">
+                            <div class="flex flex-column sm:flex-row sm:align-items-center p-4 gap-3" [ngClass]="{ 'border-top-1 surface-border': !first }">
+                                <div class="md:w-10rem relative">
+                                    <img class="block xl:block mx-auto border-round w-full" [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + item.image" [alt]="item.name" />
+                                    <p-tag [value]="item.inventoryStatus"  class="absolute" [style.left.px]="4" [style.top.px]="4" />
+                                </div>
+                                <div class="flex flex-column md:flex-row justify-content-between md:align-items-center flex-1 gap-4">
+                                    <div class="flex flex-row md:flex-column justify-content-between align-items-start gap-2">
+                                        <div>
+                                            <span class="font-medium text-secondary text-sm">{{ item.category }}</span>
+                                            <div class="text-lg font-medium text-900 mt-2">{{ item.name }}</div>
+                                        </div>
+                                        <div class="surface-100 p-1" style="border-radius: 30px">
+                                            <div class="surface-0 flex align-items-center gap-2 justify-content-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                                                <span class="text-900 font-medium text-sm">{{ item.rating }}</span>
+                                                <i class="pi pi-star-fill text-yellow-500"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-column md:align-items-end gap-5">
+                                        <span class="text-xl font-semibold text-900">{{ '$' + item.price }}</span>
+                                        <div class="flex flex-row-reverse md:flex-row gap-2">
+                                            <p-button icon="pi pi-heart" [outlined]="true" />
+                                            <p-button icon="pi pi-shopping-cart" class="flex-auto md:flex-initial white-space-nowrap" label="Buy Now" [disabled]="item.inventoryStatus === 'OUTOFSTOCK'" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-dataView>
+            <div class="contact">Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa ab pariatur fugit quia
+                aperiam deserunt reprehenderit doloremque aut numquam, fugiat veritatis vero dolorum quam natus aliquam
+                dolore incidunt. Laborum, amet?</div>
+            <div class="contact">Reprehenderit dolore non similique accusantium temporibus! Nihil optio laudantium
+                doloribus atque? Labore praesentium quasi illo iste quaerat molestias esse numquam quidem velit. Quo
+                totam ea corporis ipsum, cupiditate illum ullam!</div>
+            <div class="contact">Consequuntur corrupti quas ut rerum, odit alias illum placeat vitae, odio error libero,
+                facilis nobis! Ducimus possimus nostrum id eos laborum praesentium assumenda minima! Velit quisquam
+                voluptatum ex reprehenderit non?</div>
+            <div class="contact">Tempore alias eius, dolores facere aperiam quo deserunt harum, iusto minima mollitia
+                quos esse distinctio sequi facilis totam ratione corporis aut delectus ullam ab, voluptatem iure natus!
+                Recusandae, aspernatur sint!</div>
+            <div class="contact">Repudiandae rem dolorem tempore autem. Quod eaque cumque impedit fugit nemo molestias
+                iusto doloribus tempora at facere atque amet asperiores necessitatibus, eius temporibus minus natus
+                ipsum recusandae culpa dolores sit.</div>
+            <div class="contact">Aut, accusamus! Accusamus harum ducimus enim itaque deserunt excepturi laborum nisi.
+                Molestiae, autem, repellat architecto ratione qui deleniti labore beatae in, nihil eveniet tenetur est
+                molestias harum iste quos accusamus.</div>
+            <div class="contact">Ab laboriosam consequatur quo commodi enim suscipit, nemo numquam harum ut facere
+                doloremque dignissimos cumque eius voluptas? Soluta natus perspiciatis recusandae. Corrupti accusantium
+                culpa optio commodi beatae voluptatibus eius incidunt!</div>
+            <div class="contact">Sed eveniet, assumenda nam modi fugiat beatae cumque molestias nesciunt earum id quos,
+                quas esse exercitationem a totam ab est omnis vero voluptatum! Optio at illo ipsum, labore dolores
+                voluptatum.</div>
+            <div class="contact">Sunt reiciendis sint ipsam quaerat nihil amet, saepe facere suscipit atque ratione ut,
+                ducimus, dignissimos nam velit nulla harum labore. Ut ipsa suscipit sequi totam quibusdam odio
+                voluptatem? Vitae, repudiandae?</div>
+            <div class="contact">Asperiores suscipit possimus sunt ab distinctio et, commodi culpa, repellendus officiis
+                impedit deserunt dolores? Blanditiis quibusdam pariatur fugiat officia natus totam aut rem,
+                necessitatibus culpa. Saepe beatae exercitationem consequuntur. Repellat.</div>
+        </div>
+    </p-scrollPanel>
+</div>

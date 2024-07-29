@@ -1,0 +1,141 @@
+.container {
+  /* Messages Panel */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px;
+
+  position: relative;
+  width: 349px;
+  height: 100vh;
+  left: 100px;
+  /* top: 0px; */
+
+  /* White */
+  background: #ffffff;
+  /* box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.08); */
+}
+.container .header {
+  /* Header */
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  gap: 16px;
+
+  width: 349px;
+  /* height: 100px; */
+
+  /* White */
+  background: #ffffff;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.08);
+}
+
+.container .header .title {
+  /* Frame 4 */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 10px;
+
+  margin: 0 24px;
+  /* height: 30px; */
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.container .header h1 {
+  /* Messages */
+
+  /* width: 99px; */
+  height: 30px;
+
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 150%;
+  /* identical to box height, or 30px */
+
+  /* Black */
+  color: #000000;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.search-bar {
+  /* Frame 7 */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px 24px;
+  gap: 10px;
+
+  width: 349px;
+  height: 72px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.search-bar input {
+  background-color: #f3f3f3;
+}
+
+/* List of contacts */
+.contacts-panel{
+    margin-left: auto;
+}
+.contacts {
+  /* Message List */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px 16px;
+  gap: 80px;
+
+  width: 349px;
+  height: 100vh;
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.contacts .contact {
+  /* Message Component */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 12px;
+  gap: 16px;
+
+  width: 317px;
+  height: 93px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}

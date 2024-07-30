@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { TagModule } from 'primeng/tag';
+import { DiscussionComponent } from './discussion/discussion.component';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import { TagModule } from 'primeng/tag';
         HomeComponent,
         SidebarComponent,
         ContactsComponent,
+        DiscussionComponent,
     ],
     imports: [
         CommonModule,

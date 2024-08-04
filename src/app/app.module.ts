@@ -4,7 +4,6 @@ import { HomeComponent } from './home/home.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { ContactsComponent } from './contacts/contacts.component';
 import { AppComponent } from './app.component';
-import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app.routes';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,7 +16,15 @@ import { FormsModule } from '@angular/forms';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
+
 import { DiscussionComponent } from './discussion/discussion.component';
+import { LoginComponent } from './login/login.component';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { environment } from '../environments/environment';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
     declarations: [
@@ -26,6 +33,7 @@ import { DiscussionComponent } from './discussion/discussion.component';
         SidebarComponent,
         ContactsComponent,
         DiscussionComponent,
+        LoginComponent,
     ],
     imports: [
         CommonModule,
@@ -41,8 +49,15 @@ import { DiscussionComponent } from './discussion/discussion.component';
         ScrollPanelModule,
         DataViewModule,
         TagModule,
+        ToastModule,
+        RippleModule,
     ]
     ,
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    providers: [
+      provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+      provideAuth(() => getAuth()),
+      MessageService,
+    ]
 })
 export class AppModule { }

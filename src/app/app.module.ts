@@ -25,6 +25,8 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { MessageService } from 'primeng/api';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { AuthInterceptor } from './auth.interceptor';
 
 @NgModule({
     declarations: [
@@ -39,6 +41,7 @@ import { MessageService } from 'primeng/api';
         CommonModule,
         BrowserModule,
         AppRoutingModule,
+        HttpClientModule,
         BrowserAnimationsModule,
         FormsModule,
         ButtonModule,
@@ -53,11 +56,17 @@ import { MessageService } from 'primeng/api';
         RippleModule,
     ]
     ,
+
     bootstrap: [AppComponent],
     providers: [
-      provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-      provideAuth(() => getAuth()),
-      MessageService,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true
+        },
+        provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
+        provideAuth(() => getAuth()),
+        MessageService,
     ]
 })
 export class AppModule { }

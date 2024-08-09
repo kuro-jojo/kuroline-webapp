@@ -8,5 +8,6 @@ export const environment = {
         messagingSenderId: "",
         appId: "",
         measurementId: ""
-    }
+    },
+    apiBaseUrl: "",
 };

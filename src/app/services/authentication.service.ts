@@ -6,14 +6,33 @@ import { Auth, AuthProvider, GoogleAuthProvider, signInWithPopup } from '@angula
 })
 export class AuthenticationService {
     private firebaseAuthProvider !: AuthProvider;
+    private idToken: string | null ;
+    private readonly tokenKey = 'api.token';
 
     constructor(
         private auth: Auth,
-    ) { }
+    ) {
+        this.idToken = this.token
+    }
 
     get isLoggedIn() {
-        // console.log(this.auth);
-        return localStorage.getItem('session') !== undefined && localStorage.getItem('session') !== null;
+        return this.token !== null && this.token !== undefined;
+    }
+
+    public get token(): string | null  {
+        this.idToken = localStorage.getItem(this.tokenKey);
+        if(this.idToken === null || this.idToken === undefined) {
+            return null;
+        }
+        if(isTokenExpired(this.idToken)) {
+            this.signOut();
+            return null;
+        }
+        return this.idToken;
+    }
+
+    public set token(token: string) {
+        localStorage.setItem(this.tokenKey, token);
     }
 
     async signIn(provider: Provider): Promise<any> {
@@ -25,30 +44,53 @@ export class AuthenticationService {
             } else {
                 throw new Error("Unsupported provider");
             }
-            
+
             const result = await signInWithPopup(this.auth, this.firebaseAuthProvider);
-            
+
             const credential = GoogleAuthProvider.credentialFromResult(result);
             if (credential === null) {
                 console.error("Credential is null");
                 return;
             }
-            
-            const token = credential.accessToken;
-            if (token) {
-                localStorage.setItem('session', token);
-            }
+
+            await this.refreshToken();
             return result;
         } catch (error: any) {
             console.error("Sign in failed", error);
-            const errorMessage = error.message;
-
             throw error;
         }
     }
 
-    async signOut() {
+    async refreshToken(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const token = await user.getIdToken();
+                        this.token = token;
+                        resolve();
+                    } catch (error) {
+                        console.error("Error getting token", error);
+                        reject(error);
+                    }
+                } else {
+                    resolve();
+                }
+            });
+        });
     }
+
+    signOut() {
+        if (this.idToken != null) {
+            this.idToken = null;
+            localStorage.clear();
+        }
+    }
+    
+}
+function isTokenExpired(token: string) {
+    const expiry = (JSON.parse(atob(token.split('.')[1]))).exp;
+    return (Math.floor((new Date).getTime() / 1000)) >= expiry;
 }
 
 export enum Provider {

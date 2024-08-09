@@ -1,8 +1,9 @@
 export interface User {
-    uid: string
+    id: string
     name: string
-    phoneNumber: string
+    phoneNumber?: string
     status: string // online, offline or busy
-    profilePhoto?: string
+    profilePhoto?: string,
+    email?: string
 
 }

@@ -19,8 +19,13 @@ export class LoginComponent {
         if (this.authService.isLoggedIn) {
             this.router.navigate(['']);
         }
-     }
+    }
 
+    ngOnInit() {
+        if (this.authService.isLoggedIn) {
+            this.router.navigate(['']);
+        }
+    }
     async signInWithGoogle() {
         this.loadingGoogle = true;
         await this.authService.signIn(Provider.Google).then(() => {

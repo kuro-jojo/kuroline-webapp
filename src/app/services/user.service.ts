@@ -14,7 +14,15 @@ export class UserService {
         private http: HttpClient,
     ) { }
 
-    getUserDetails(): Observable<User[]> {
-        return this.http.get<User[]>(`${this.apiBaseUrl}/users`);
+    getUserDetails(): Observable<User> {
+        return this.http.get<User>(`${this.apiBaseUrl}/users/details`);
+    }
+
+    registerUser(user: User): Observable<User> {
+        return this.http.post<User>(`${this.apiBaseUrl}/users`, user);
+    }
+
+    registerUserWithOauth(): Observable<any> {
+        return this.http.post<any>(`${this.apiBaseUrl}/users/oauth`, {});
     }
 }

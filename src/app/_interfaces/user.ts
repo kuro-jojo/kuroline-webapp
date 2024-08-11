@@ -5,5 +5,4 @@ export interface User {
     status: string // online, offline or busy
     profilePhoto?: string,
     email?: string
-
 }

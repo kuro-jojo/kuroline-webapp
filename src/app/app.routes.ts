@@ -7,6 +7,7 @@ import { authGuard } from './auth.guard';
 export const routes: Routes = [
     {
         path: '',
+        title: 'Kuroline - Discussion',
         component: HomeComponent,
         canActivate: [authGuard]
     },

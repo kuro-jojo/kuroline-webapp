@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { AuthenticationService } from '../services/authentication.service';
 import { UserService } from '../services/user.service';
 import { User } from '../_interfaces/user';
 
@@ -9,6 +8,7 @@ import { User } from '../_interfaces/user';
   styleUrl: './discussion.component.css'
 })
 export class DiscussionComponent {
+    currentUser : User | undefined;
 
     constructor (
         private userService: UserService,
@@ -17,8 +17,9 @@ export class DiscussionComponent {
     ngOnInit() {
        
         this.userService.getUserDetails().subscribe({
-            next: (response : User[]) => {
-                console.log(response[0].id);
+            next: (response : User) => {
+                console.log(response);
+                this.currentUser = response;
             },
             error: (error) => {
                 console.error(error);

@@ -3,6 +3,11 @@
 @import "primeng/resources/primeng.css";
 @import "bootstrap/scss/bootstrap.scss";
 
+input,
+.p-button {
+  box-shadow: none !important; /* Remove the box-shadow set by bootstrap */
+}
+
 body {
   padding: 0;
   margin: 0;

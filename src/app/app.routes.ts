@@ -3,6 +3,7 @@ import { HomeComponent } from './home/home.component';
 import { NgModule } from '@angular/core';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './auth.guard';
+import { SignupComponent } from './signup/signup.component';
 
 export const routes: Routes = [
     {
@@ -15,6 +16,11 @@ export const routes: Routes = [
         path: 'login',
         title: 'Login',
         component: LoginComponent,
+    },
+    {
+        path:"register",
+        title:"Sign Up",
+        component: SignupComponent,
     }
 ];
 @NgModule({

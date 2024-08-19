@@ -12,12 +12,16 @@ import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
+import { PasswordModule } from 'primeng/password';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FileUploadModule } from 'primeng/fileupload';
 
 import { DiscussionComponent } from './discussion/discussion.component';
 import { LoginComponent } from './login/login.component';
@@ -27,6 +31,7 @@ import { environment } from '../environments/environment';
 import { MessageService } from 'primeng/api';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
+import { SignupComponent } from './signup/signup.component';
 
 @NgModule({
     declarations: [
@@ -36,6 +41,7 @@ import { AuthInterceptor } from './auth.interceptor';
         ContactsComponent,
         DiscussionComponent,
         LoginComponent,
+        SignupComponent,
     ],
     imports: [
         CommonModule,
@@ -44,6 +50,7 @@ import { AuthInterceptor } from './auth.interceptor';
         HttpClientModule,
         BrowserAnimationsModule,
         FormsModule,
+        ReactiveFormsModule,
         ButtonModule,
         BadgeModule,
         IconFieldModule,
@@ -54,9 +61,11 @@ import { AuthInterceptor } from './auth.interceptor';
         TagModule,
         ToastModule,
         RippleModule,
-    ]
-    ,
-
+        PasswordModule,
+        InputSwitchModule,
+        SelectButtonModule,
+        FileUploadModule,
+    ],
     bootstrap: [AppComponent],
     providers: [
         {

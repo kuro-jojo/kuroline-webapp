@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Auth, AuthProvider, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
 
+/**
+ * Service responsible for handling authentication operations.
+ * 
+ */
 @Injectable({
     providedIn: 'root'
 })
 export class AuthenticationService {
     private firebaseAuthProvider !: AuthProvider;
-    private idToken: string | null ;
+    private idToken: string | null;
+    private rememberMe = false;
     private readonly tokenKey = 'api.token';
 
     constructor(
@@ -19,23 +24,31 @@ export class AuthenticationService {
         return this.token !== null && this.token !== undefined;
     }
 
-    public get token(): string | null  {
-        this.idToken = localStorage.getItem(this.tokenKey);
-        if(this.idToken === null || this.idToken === undefined) {
+    public get token(): string | null {
+        this.idToken = localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.tokenKey);
+        if (this.idToken === null || this.idToken === undefined) {
             return null;
         }
-        if(isTokenExpired(this.idToken)) {
+        if (isTokenExpired(this.idToken)) {
             this.signOut();
             return null;
         }
         return this.idToken;
     }
 
-    public set token(token: string) {
-        localStorage.setItem(this.tokenKey, token);
+    public set remember(value: boolean) {
+        this.rememberMe = value;
     }
 
-    async signIn(provider: Provider): Promise<any> {
+    public set token(token: string) {
+        if (this.rememberMe) {
+            localStorage.setItem(this.tokenKey, token);
+        } else {
+            sessionStorage.setItem(this.tokenKey, token);
+        }
+    }
+
+    async signInWithProvider(provider: Provider): Promise<any> {
         try {
             if (provider === Provider.Google) {
                 this.firebaseAuthProvider = new GoogleAuthProvider();
@@ -61,6 +74,54 @@ export class AuthenticationService {
         }
     }
 
+    async signInWithEmail(email:string, password:string): Promise<any> {
+        try {
+            const result = await signInWithEmailAndPassword(this.auth, email, password);
+
+            await this.refreshToken();
+            return result;
+        } catch (error: any) {
+            console.error("Sign in failed", error);
+            throw error;
+        }
+    }
+
+
+    // TODO: Implement registration on client side
+
+    // async registerWithEmail(user: User): Promise<any> {
+    //     try {
+    //         const result = await createUserWithEmailAndPassword(this.auth, user.email!, user.password!);
+
+    //         await this.refreshToken();
+    //         return result;
+    //     }
+    //     catch (error: any) {
+    //         console.error("Register failed", error);
+    //         throw error;
+    //     }
+    // }
+
+    // async registerWithPhoneNumber(user: User): Promise<any> {
+    //         try {
+    //             const appVerifier = new RecaptchaVerifier(this.auth, 'register-btn', {
+    //                 'size': 'invisible',
+    //                 'callback': (response) => {
+    //                   // reCAPTCHA solved, allow signInWithPhoneNumber.
+    //                   onSignInSubmit();
+    //                 }
+    //               });
+    //             const result = await createUserWithEmailAndPassword(this.auth, user.phoneNumber!, user.password!);
+
+    //             await this.refreshToken();
+    //             return result;
+    //         }
+    //         catch (error: any) {
+    //             console.error("Register failed", error);
+    //             throw error;
+    //         }
+    //     }
+
     async refreshToken(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.auth.onAuthStateChanged(async (user) => {
@@ -84,10 +145,12 @@ export class AuthenticationService {
         if (this.idToken != null) {
             this.idToken = null;
             localStorage.clear();
+            sessionStorage.clear();
         }
     }
-    
+
 }
+
 function isTokenExpired(token: string) {
     const expiry = (JSON.parse(atob(token.split('.')[1]))).exp;
     return (Math.floor((new Date).getTime() / 1000)) >= expiry;

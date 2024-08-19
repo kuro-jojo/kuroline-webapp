@@ -23,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
             return next.handle(req);
         }
 
-        if (!this.router.url.includes('login')) {
+        if (!this.router.url.includes('login') && !this.router.url.includes('register')) {
             this.router.navigateByUrl('/login');
         }
         return next.handle(req);

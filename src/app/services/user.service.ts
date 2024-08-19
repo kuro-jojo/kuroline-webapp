@@ -9,6 +9,7 @@ import { User } from '../_interfaces/user';
 })
 export class UserService {
 
+
     private apiBaseUrl = environment.apiBaseUrl;
     constructor(
         private http: HttpClient,
@@ -20,6 +21,17 @@ export class UserService {
 
     registerUser(user: User): Observable<User> {
         return this.http.post<User>(`${this.apiBaseUrl}/users`, user);
+    }
+
+    registerUserWithEmailOrPhoneNumber(user: User): Observable<User> {
+
+        const formData = new FormData();
+        if (user.profilePhoto) {
+            formData.append('picture', user.profilePhoto);
+        }
+        user.profilePhoto = "";
+        formData.append('user', new Blob([JSON.stringify(user)], { type: 'application/json' }));
+        return this.http.post<User>(`${this.apiBaseUrl}/users/register/basic`, formData);
     }
 
     registerUserWithOauth(): Observable<any> {

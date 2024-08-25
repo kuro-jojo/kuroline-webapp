@@ -8,13 +8,11 @@
   /* padding: 0px 0 0 16px; */
 
   position: relative;
-  width: 450px;
+  width: 500px;
   height: 100vh;
   /* top: 0px; */
 
-  /* White */
   background: #ffffff;
-  /* box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.08); */
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -54,7 +52,7 @@
 }
 
 .search-bar {
-    width: 100%;
+  width: 100%;
   padding: 12px 24px;
 }
 
@@ -104,7 +102,7 @@
   /* Auto layout */
   display: flex;
   flex-direction: column;
-   padding: 0px;
+  padding: 0px;
   gap: 8px;
 
   /* width: 229px; */
@@ -164,5 +162,5 @@
   line-height: 150%;
   /* identical to box height, or 18px */
 
-  color: rgba(0, 0, 0, 0.5 );
+  color: rgba(0, 0, 0, 0.5);
 }

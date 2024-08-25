@@ -5,7 +5,7 @@
                 src="https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg"
                 alt="avatar">
             <div class="data">
-                <span class="name">{{ currentUser?.name }}</span>
+                <span class="name">Contact name</span>
                 <div class="status">
                     <span class="bg-success ball"></span>
                     <span class="text">Online</span>
@@ -16,7 +16,10 @@
     </div>
     <div class="discussion">
         <p-scrollPanel [style]="{ width: '100%', height: '55%' }">
-            <div class=" ">
+            <div *ngFor="let msg of messages" class="chat-message">
+                <strong>{{ msg.senderId }}:</strong> {{ msg.content }}
+              </div>
+            <!-- <div class=" ">
                 <div class="message-box">
                     <img class="avatar"
                         src="https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg"
@@ -180,13 +183,13 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </p-scrollPanel>
     </div>
     <div class="send-message">
         <p-iconField iconPosition="right" class="w-75 mx-auto">
-            <p-inputIcon styleClass="pi pi-send" class="send-icon" />
-            <input type="text" pInputText placeholder="Type a message" class="w-100"/>
+            <p-inputIcon styleClass="pi pi-send" class="send-icon" (click)="sendMessage()"/>
+            <input type="text" pInputText placeholder="Type a message" class="w-100" [(ngModel)]="messageContent"/>
         </p-iconField>
     </div>
 </div>

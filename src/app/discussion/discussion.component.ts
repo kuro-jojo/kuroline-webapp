@@ -1,29 +1,42 @@
 import { Component } from '@angular/core';
-import { UserService } from '../services/user.service';
 import { User } from '../_interfaces/user';
+import { Message } from '../_interfaces/message';
+import { ChatService } from '../services/chat.service';
 
 @Component({
-  selector: 'app-discussion',
-  templateUrl: './discussion.component.html',
-  styleUrl: './discussion.component.css'
+    selector: 'app-discussion',
+    templateUrl: './discussion.component.html',
+    styleUrl: './discussion.component.css'
 })
 export class DiscussionComponent {
-    currentUser : User | undefined;
+    currentUser: User | undefined;
+    messageContent: string = '';
 
-    constructor (
-        private userService: UserService,
-    ){}
+    messages: Message[] = [];
+    constructor(
+        private chatService: ChatService,
+    ) {
+    }
 
     ngOnInit() {
-       
-        this.userService.getUserDetails().subscribe({
-            next: (response : User) => {
-                console.log(response);
-                this.currentUser = response;
-            },
-            error: (error) => {
-                console.error(error);
-            }
-        })
+        // Subscribe to incoming messages
+        this.chatService.connect();
+        this.chatService.listen()        
+    }
+
+    sendMessage() {
+        if (this.messageContent) {
+            const message: Message = {
+                senderId: "my id",
+                receiverId: "receiver id",
+                content: this.messageContent,
+                sentAt: new Date(),
+            };
+            console.log("Sending message");
+            this.chatService.sendMessage(message);
+            this.messageContent = '';
+        }
+
+        this.chatService.disconnect();
     }
 }

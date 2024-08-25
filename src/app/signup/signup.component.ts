@@ -84,9 +84,9 @@ export class SignupComponent {
             password: this.formControls['password'].value,
             email: this.formControls['email'].value,
             phoneNumber: this.formControls['phoneNumber'].value,
-            profilePhoto: this.formControls['profilePicture'].value
+            profilePicture: this.formControls['profilePicture'].value
         }
-        console.log("photo", user.profilePhoto);
+        console.log("photo", user.profilePicture);
         this.loading = true;
 
         this.userService.registerUserWithEmailOrPhoneNumber(user).subscribe({

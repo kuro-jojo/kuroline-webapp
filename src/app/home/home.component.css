@@ -7,10 +7,6 @@
   justify-content: flex-start;
 }
 
-app-sidebar{
-    width: 100px;
-    height: 100%;
-}
-app-message, app-discussion{
-    height: 100%;
+app-discussion {
+    flex-grow: 1;
 }

@@ -3,31 +3,24 @@
         <!-- <div class="logo">
             <p>q</p>
         </div> -->
-        <img class="logo"
-        src="https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg"
-        alt="">
-        
+        <img class="logo" src="assets/img/test.png" alt="">
+
         <ul class="menu">
             <li>
-                <a routerLink="/dashboard" routerLinkActive="active"><i class="pi pi-home"
-                        style="color: 'var(--primary-color)'"></i>
-                </a>
+                <a (click)="changePanel(panels.contacts)" [ngClass]="{'active': currentPanel == panels.contacts}"><i class="pi pi-comments"></i></a>
             </li>
             <li>
-                <a routerLink="/dashboard" routerLinkActive="active"><i class="pi pi-envelope"
-                        style="color: 'var(--primary-color)'"></i>
+                <a (click)="changePanel(panels.groups)" [ngClass]="{'active': currentPanel == panels.groups}"><i class="pi pi-users"></i>
                 </a>
-            </li>
+            </li> 
             <li>
-                <a routerLink="/dashboard" routerLinkActive="active"><i class="pi pi-search"
-                        style="color: 'var(--primary-color)'"></i>
+                <a (click)="changePanel(panels.search)" [ngClass]="{'active': currentPanel == panels.search}"><i class="pi pi-search"></i>
                 </a>
             </li>
         </ul>
-        <div class="setting">
-            <a (click)="logout()"><i class="pi pi-cog"
-                    style="color: 'var(--primary-color)'"></i>
-            </a>
-        </div>
+    </div>
+    <div class="setting">
+        <a class="profile" (click)="changePanel(panels.profile)"><img [src]="currentUser?.profilePicture" alt=""></a>
+        <a (click)="changePanel(panels.settings)" [ngClass]="{'active': currentPanel == panels.settings}"><i class="pi pi-cog"></i> </a>
     </div>
 </div>

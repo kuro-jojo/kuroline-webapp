@@ -47,8 +47,10 @@ export class LoginComponent {
         }
         let email = this.formControls['email'].value;
         let password = this.formControls['password'].value;
-
+        let rememberMe = this.formControls['rememberMe'].value;
+        this.authService.remember = rememberMe;
         this.loading = true;
+
         this.authService.signInWithEmail(email, password).then(() => {
             this.loading = false;
             this.messageService.add({ severity: 'success', summary: 'Sign in successful', detail: 'You have been signed in successfully' });

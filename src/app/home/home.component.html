@@ -1,5 +1,7 @@
+<p-toast />
+
 <div class="content">
-    <app-sidebar></app-sidebar>
-    <app-contacts></app-contacts>
+    <app-sidebar (panelEvent)="changePanel($event)"></app-sidebar>
+    <ng-container *ngComponentOutlet="loadPanel()" />  
     <app-discussion></app-discussion>
 </div>

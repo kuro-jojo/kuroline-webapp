@@ -74,7 +74,7 @@ export class AuthenticationService {
         }
     }
 
-    async signInWithEmail(email:string, password:string): Promise<any> {
+    async signInWithEmail(email: string, password: string): Promise<any> {
         try {
             const result = await signInWithEmailAndPassword(this.auth, email, password);
 

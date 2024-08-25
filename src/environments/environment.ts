@@ -10,4 +10,5 @@ export const environment = {
         measurementId: ""
     },
     apiBaseUrl: "",
+    webSocketUrl: ""
 };

@@ -22,6 +22,7 @@ import { PasswordModule } from 'primeng/password';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FileUploadModule } from 'primeng/fileupload';
+import { ImageModule } from 'primeng/image';
 
 import { DiscussionComponent } from './discussion/discussion.component';
 import { LoginComponent } from './login/login.component';
@@ -32,6 +33,7 @@ import { MessageService } from 'primeng/api';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
 import { SignupComponent } from './signup/signup.component';
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
     declarations: [
@@ -42,6 +44,7 @@ import { SignupComponent } from './signup/signup.component';
         DiscussionComponent,
         LoginComponent,
         SignupComponent,
+        ProfileComponent,
     ],
     imports: [
         CommonModule,
@@ -65,7 +68,8 @@ import { SignupComponent } from './signup/signup.component';
         InputSwitchModule,
         SelectButtonModule,
         FileUploadModule,
-    ],
+        ImageModule,
+     ],
     bootstrap: [AppComponent],
     providers: [
         {
@@ -76,6 +80,6 @@ import { SignupComponent } from './signup/signup.component';
         provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
         provideAuth(() => getAuth()),
         MessageService,
-    ]
+     ]
 })
 export class AppModule { }

@@ -1,0 +1,33 @@
+<p-toast />
+<div class="content">
+    <h1>Profile</h1>
+    <div class="picture">
+        <p-image [imageStyle]="{ width: '20rem', height: '20rem', borderRadius: '50%', alignSelf: 'center' }"
+            [src]="tempProfile != '' ?tempProfile: currentUser?.profilePicture" alt="user profile picture"
+            [preview]="true" />
+        <div class="editor">
+            <span *ngIf="!isEditingProfile && !isSavingProfile" class="edit-profile" (click)="editProfile()"> Edit</span>
+            <span *ngIf="isEditingProfile && !isSavingProfile" class="edit-profile text-danger" (click)="cancelProfileEdit()"> Cancel</span>
+            <span *ngIf="isEditingProfile && !isSavingProfile" class="edit-profile text-success" (click)="saveProfile()"> Save</span>
+            <i *ngIf="isSavingProfile" class="pi-edit pi pi-spin pi-spinner"></i>
+
+            <input #fileUploader (change)="editProfile()" type="file" name="pic" accept="image/*"
+                style="display: none;">
+        </div>
+
+
+    </div>
+    <div class="info">
+        <span>Your name</span>
+        <div class="editable">
+            <h2><input id="disabled-input" type="text" pInputText [disabled]="!isEditingName"
+                    [(ngModel)]="currentUser!.name" /></h2>
+            <i *ngIf="  editLoading" class="pi-edit pi pi-spin pi-spinner"></i>
+            <i *ngIf="!isEditingName" class="pi-edit pi pi-pencil" (click)="editName()"></i>
+            <i *ngIf="isEditingName && !editLoading" class="pi-edit pi pi-check" (click)="editName()"></i>
+        </div>
+
+        <span>Your email</span>
+        <h2>{{ currentUser?.email}}</h2>
+    </div>
+</div>

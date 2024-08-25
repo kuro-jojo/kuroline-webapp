@@ -3,7 +3,7 @@ import { Message } from "./message";
 
 export interface Discussion {
     id: number;
-    userId: string; // the current user
+    ownerId: string; // the current user
     contactId: string   // the contact with whom the user is having a discussion;
     messages: Message[];
     lastMessageId: string;

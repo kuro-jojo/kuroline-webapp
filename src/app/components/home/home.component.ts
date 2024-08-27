@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'; 
+import { MessageService } from 'primeng/api';
+import { UserService } from '../../services/user.service';
 import { ContactsComponent } from '../contacts/contacts.component';
 import { ProfileComponent } from '../profile/profile.component';
-import { UserService } from '../services/user.service';
-import { User } from '../_interfaces/user';
-import { MessageService } from 'primeng/api';
+import { User } from '../../_interfaces/user';
 
 @Component({
     selector: 'app-home',
@@ -17,7 +17,7 @@ export class HomeComponent {
         profile: "profile",
     }
     panel: string = this.panels.profile
-
+ 
     constructor(
         private userService: UserService,
         private messageService: MessageService,
@@ -34,7 +34,7 @@ export class HomeComponent {
     }
 
     ngOnInit() {
-
+        console.log("Initializing home component");
 
     }
 

@@ -2,7 +2,7 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpInterceptorFn, HttpRequest
 import { inject, Injectable } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -17,10 +17,27 @@ export class AuthInterceptor implements HttpInterceptor {
         if (this.authService.isLoggedIn) {
             req = req.clone({
                 setHeaders: {
-                    Authorization: `Bearer ${this.authService.token}`
+                    Authorization: `Bearer ${this.authService.getToken()}`
                 }
             });
             return next.handle(req);
+        }
+        if (this.authService.remember) {
+            return from(this.authService.refreshToken()).pipe(
+                switchMap(() => {
+                    console.log('Refreshing token');
+                    const clonedRequest = req.clone({
+                        setHeaders: {
+                            Authorization: `Bearer ${this.authService.getToken()}`
+                        }
+                    });
+                    return next.handle(clonedRequest);
+                }),
+                catchError(err => {
+                    this.authService.signOut();
+                    return throwError(() => err);
+                })
+            );
         }
 
         if (!this.router.url.includes('login') && !this.router.url.includes('register')) {

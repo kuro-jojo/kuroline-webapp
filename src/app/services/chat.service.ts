@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Message } from '../_interfaces/message';
 import { WebSocketService } from './web-socket.service';
 import { AuthenticationService } from './authentication.service';
-import { Message as SMessage } from '@stomp/stompjs';
 
 @Injectable({
     providedIn: 'root'
@@ -15,29 +14,32 @@ export class ChatService {
     ) { }
 
     connect() {
-        this.webSocketService.connect(this.authService.token!);
+        this.webSocketService.connect(this.authService.getToken()!);
     }
 
     sendMessage(message: Message) {
         this.webSocketService.send(message);
     }
 
-    listen() {
+    listen(messages: Message[]) {
         this.webSocketService.getIsConnected().subscribe(isConnected => {
             if (isConnected) {
-              this.webSocketService.listen().subscribe({
-                next: (message: Message) => {
-                  console.log('Received message:', message);
-                },
-                error: (err) => {
-                  console.error('Error receiving message:', err);
-                }
-              });
+                this.webSocketService.listen().subscribe({
+                    next: (message: Message) => {
+                        messages.push(message); 
+                        // messages = output;
+                     },
+                    error: (err) => {
+                        console.error('Error receiving message:', err);
+                    }
+                });
             }
-          });
+        });
     }
 
     disconnect() {
+        console.log('Disconnecting WebSocket');
+
         this.webSocketService.disconnect();
     }
 }

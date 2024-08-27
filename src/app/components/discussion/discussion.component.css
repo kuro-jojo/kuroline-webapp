@@ -134,6 +134,11 @@
   }
 }
 
+p-scrollPanel{
+    height: 100%;
+    width: 100%;
+}
+
 .discussion {
   /* Message List */
   /* z-index: -1; */
@@ -141,8 +146,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 24px;
-  padding-right: 0;
+  padding-left: 24px;
   gap: 24px;
 
   width: 100%;
@@ -167,7 +171,7 @@
 }
 
 .discussion .message-box.new {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 .sender {
@@ -189,6 +193,7 @@
   margin-left: auto;
   /* width: fit-content !important; */
 }
+
 .discussion .message-box .message {
   /* Frame 21 */
 

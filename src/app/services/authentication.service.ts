@@ -10,28 +10,40 @@ import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, sig
 })
 export class AuthenticationService {
     private firebaseAuthProvider !: AuthProvider;
-    private idToken: string | null;
+    private idToken?: string | null;
     private rememberMe = false;
     private readonly tokenKey = 'api.token';
 
     constructor(
         private auth: Auth,
     ) {
-        this.idToken = this.token
+        this.idToken = this.getToken();
     }
 
     get isLoggedIn() {
-        return this.token !== null && this.token !== undefined;
+        return this.getToken() !== null;
     }
 
-    public get token(): string | null {
+    public getToken(): string | null {
         this.idToken = localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.tokenKey);
         if (this.idToken === null || this.idToken === undefined) {
             return null;
         }
+
         if (isTokenExpired(this.idToken)) {
-            this.signOut();
-            return null;
+            if (this.rememberMe) {
+                this.refreshToken().then((token) => {
+                    console.log("Token refreshed", token);
+                    alert("Token refreshed in get token");
+                    return this.idToken;
+                }).catch(() => {
+                    this.signOut();
+                    return null;
+                });
+            } else {
+                this.signOut();
+                return null;
+            }
         }
         return this.idToken;
     }
@@ -40,7 +52,7 @@ export class AuthenticationService {
         this.rememberMe = value;
     }
 
-    public set token(token: string) {
+    public setToken(token: string) {
         if (this.rememberMe) {
             localStorage.setItem(this.tokenKey, token);
         } else {
@@ -128,7 +140,8 @@ export class AuthenticationService {
                 if (user) {
                     try {
                         const token = await user.getIdToken();
-                        this.token = token;
+                        this.setToken(token);
+                        alert("Token refreshed");
                         resolve();
                     } catch (error) {
                         console.error("Error getting token", error);

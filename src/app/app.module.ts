@@ -1,18 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HomeComponent } from './home/home.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { ContactsComponent } from './contacts/contacts.component';
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app.routes';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideAuth, getAuth } from '@angular/fire/auth';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DataViewModule } from 'primeng/dataview';
 import { TagModule } from 'primeng/tag';
@@ -23,17 +22,22 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ImageModule } from 'primeng/image';
-
-import { DiscussionComponent } from './discussion/discussion.component';
-import { LoginComponent } from './login/login.component';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { environment } from '../environments/environment';
 import { MessageService } from 'primeng/api';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+
+
+import { HomeComponent } from './components/home/home.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ContactsComponent } from './components/contacts/contacts.component';
+import { environment } from '../environments/environment';
+import { DiscussionComponent } from './components/discussion/discussion.component';
+import { LoginComponent } from './components/login/login.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { SignupComponent } from './components/signup/signup.component';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app.routes';
 import { AuthInterceptor } from './auth.interceptor';
-import { SignupComponent } from './signup/signup.component';
-import { ProfileComponent } from './profile/profile.component';
+
+
 
 @NgModule({
     declarations: [
@@ -69,7 +73,7 @@ import { ProfileComponent } from './profile/profile.component';
         SelectButtonModule,
         FileUploadModule,
         ImageModule,
-     ],
+    ],
     bootstrap: [AppComponent],
     providers: [
         {
@@ -80,6 +84,6 @@ import { ProfileComponent } from './profile/profile.component';
         provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
         provideAuth(() => getAuth()),
         MessageService,
-     ]
+    ]
 })
 export class AppModule { }

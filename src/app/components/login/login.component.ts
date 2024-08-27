@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { AuthenticationService, Provider } from '../services/authentication.service';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { UserService } from '../services/user.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { timer } from 'rxjs';
+import { MessageService } from 'primeng/api'; 
+import { AuthenticationService, Provider } from '../../services/authentication.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
     selector: 'app-login',

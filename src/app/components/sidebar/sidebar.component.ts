@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AuthenticationService } from '../services/authentication.service';
-import { ReloadComponent } from '../utils';
 import { Router } from '@angular/router';
-import { User } from '../_interfaces/user';
-import { UserService } from '../services/user.service';
+import { User } from '../../_interfaces/user';
+import { AuthenticationService } from '../../services/authentication.service';
+import { UserService } from '../../services/user.service';
+import { ReloadComponent } from '../../utils';
+
 
 @Component({
     selector: 'app-sidebar',

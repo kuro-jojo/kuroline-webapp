@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
-import { UserService } from '../services/user.service';
-import { User } from '../_interfaces/user';
 import { timer } from 'rxjs';
+import { UserService } from '../../services/user.service';
+import { User } from '../../_interfaces/user';
 
 @Component({
     selector: 'app-profile',
@@ -27,6 +27,7 @@ export class ProfileComponent {
     }
 
     ngOnInit() {
+        console.log("Initializing profile component");
         this.items = [
             {
                 label: 'Options',
@@ -131,3 +132,4 @@ export class ProfileComponent {
         });
     }
 }
+

@@ -141,7 +141,7 @@ export class AuthenticationService {
                     try {
                         const token = await user.getIdToken();
                         this.setToken(token);
-                        alert("Token refreshed");
+                        // alert("Token refreshed");
                         resolve();
                     } catch (error) {
                         console.error("Error getting token", error);

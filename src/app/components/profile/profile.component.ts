@@ -1,6 +1,6 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
-import { timer } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { UserService } from '../../services/user.service';
 import { User } from '../../_interfaces/user';
 
@@ -9,7 +9,7 @@ import { User } from '../../_interfaces/user';
     templateUrl: './profile.component.html',
     styleUrl: './profile.component.css'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit, OnDestroy {
     currentUser: User | undefined;
     items: MenuItem[] | undefined;
     tempProfile: string = '';
@@ -17,7 +17,9 @@ export class ProfileComponent {
     isEditingName = false;
     isEditingProfile = false;
     isSavingProfile: any;
-
+    
+    currentUserSubscription!: Subscription;
+    
     @ViewChild('fileUploader') fileUpload: ElementRef | undefined;
 
     constructor(
@@ -27,7 +29,6 @@ export class ProfileComponent {
     }
 
     ngOnInit() {
-        console.log("Initializing profile component");
         this.items = [
             {
                 label: 'Options',
@@ -43,9 +44,11 @@ export class ProfileComponent {
                 ]
             }
         ];
-        this.userService.getCurrentUser().subscribe({
+        
+        this.currentUserSubscription = this.userService.getCurrentUser().subscribe({
             next: (user: User) => {
                 this.currentUser = user;
+                // console.log("Get current user from profile", user);
             },
             error: (error) => {
                 console.error(error);
@@ -57,7 +60,6 @@ export class ProfileComponent {
         if (this.isEditingName) {
             this.editLoading = true;
             timer(1000).subscribe(() => {
-                console.log('Saving name');
                 this.userService.updateUserName(this.currentUser!.name!).subscribe({
                     next: () => {
                         this.editLoading = false;
@@ -130,6 +132,10 @@ export class ProfileComponent {
                 }
             });
         });
+    }
+
+    ngOnDestroy() {
+        this.currentUserSubscription.unsubscribe();
     }
 }
 

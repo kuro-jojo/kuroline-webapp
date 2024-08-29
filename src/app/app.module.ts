@@ -22,7 +22,8 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ImageModule } from 'primeng/image';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 
 import { HomeComponent } from './components/home/home.component';
@@ -36,6 +37,7 @@ import { SignupComponent } from './components/signup/signup.component';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routes';
 import { AuthInterceptor } from './auth.interceptor';
+import { SearchUsersComponent } from './components/search-users/search-users.component';
 
 
 
@@ -49,6 +51,7 @@ import { AuthInterceptor } from './auth.interceptor';
         LoginComponent,
         SignupComponent,
         ProfileComponent,
+        SearchUsersComponent
     ],
     imports: [
         CommonModule,
@@ -73,6 +76,7 @@ import { AuthInterceptor } from './auth.interceptor';
         SelectButtonModule,
         FileUploadModule,
         ImageModule,
+        ConfirmDialogModule
     ],
     bootstrap: [AppComponent],
     providers: [
@@ -84,6 +88,7 @@ import { AuthInterceptor } from './auth.interceptor';
         provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
         provideAuth(() => getAuth()),
         MessageService,
+        ConfirmationService
     ]
 })
 export class AppModule { }

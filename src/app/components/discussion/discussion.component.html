@@ -1,14 +1,13 @@
 <div class="content">
+    @if(activeDiscussion){
     <div class="contact-info">
         <div class="profile">
-            <img class="avatar"
-                src="https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg"
-                alt="avatar">
+            <img class="avatar" [src]="currentReceiver?.profilePicture" alt="avatar">
             <div class="data">
-                <span class="name">Contact name</span>
+                <span class="name">{{ currentReceiver?.name}}</span>
                 <div class="status">
                     <span class="bg-success ball"></span>
-                    <span class="text">Online</span>
+                    <span class="text">{{ currentReceiver?.status }}</span>
                 </div>
             </div>
         </div>
@@ -16,14 +15,15 @@
     </div>
     <div class="discussion">
         <p-scrollPanel [style]="{ width: '100%', height: '95%' }">
-            @for (msg of discussion?.messages; track msg.id;let index = $index) {
+            @for (msg of activeDiscussion.messages; track msg.id;let index = $index) {
 
             <div class="message-box"
-                [ngClass]="{'sender': msg.senderId === currentUser?.id, 'new': isSameSender(index, msg)}">
+                [ngClass]="{'sender': msg.senderId === currentUser?.id, 'new': index=== (activeDiscussion.messages?.length!-1) }">
                 <div class="avatar">
-                    <img *ngIf="isSameSender(index, msg)" class="avatar"
-                        [src]="msg.senderId === currentUser?.id ? currentUser?.profilePicture : currentReceiver?.profilePicture"
+                    @if (index > 0 && activeDiscussion.messages![index-1].senderId !== msg.senderId || index === 0 ) {
+                    <img class="avatar" [src]="msg.senderId === currentUser?.id ? currentUser?.profilePicture : currentReceiver?.profilePicture"
                         alt="avatar">
+                    }
                 </div>
                 <div class="box-content">
                     <div class="message">
@@ -43,7 +43,12 @@
         <p-iconField iconPosition="right" class="w-75 mx-auto">
             <p-inputIcon styleClass="pi pi-send" class="send-icon" (click)="sendMessage()" />
             <input type="text" pInputText placeholder="Type a message" class="w-100" [(ngModel)]="messageContent"
-                (keydown.enter)="onKeyDown()" autofocus />
+                (keydown.enter)="onEnterPressed()" autofocus />
         </p-iconField>
     </div>
+    }@else{
+    <div class="empty-discussion">
+        <p>Start a conversation with a contact</p>
+    </div>
+    }
 </div>

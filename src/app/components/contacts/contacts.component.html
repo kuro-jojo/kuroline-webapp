@@ -15,30 +15,23 @@
 
     <p-scrollPanel class="contacts-panel">
         <div class="contacts">
-            <p-dataView #dv [value]="contacts">
-                <ng-template pTemplate="list" let-contact>
-                    <div>
-                        <div *ngFor="let contact of contacts; let first = first">
-                            <div class="contact">
-                                <img class="contact-profile" [src]="contact.profilePicture" [alt]="contact.name" />
-                                <div class="contact-info">
-                                    <div class="data">
-                                        <span class="name">{{ contact.name }}</span>
-                                        <div>
-                                            <span class="status"
-                                                [ngClass]="{' text-success': contact.status == 'online',' text-danger': contact.status == 'offline'}">{{
-                                                contact.status }}</span>
-                                            <span class="status">12m</span>
-                                        </div>
-                                    </div>
-                                    <span class="last-message">Last message</span>
-                                </div>
+            <div *ngFor="let contact of contacts; let first = first">
+                <div class="contact" (click)="loadDiscussion(contact)">
+                    <img class="contact-profile" [src]="contact.profilePicture" [alt]="contact.name" />
+                    <div class="contact-info">
+                        <div class="data">
+                            <span class="name">{{ contact.name }}</span>
+                            <div>
+                                <span class="status"
+                                    [ngClass]="{' text-success': contact.status == 'online',' text-danger': contact.status == 'offline'}">{{
+                                    contact.status }}</span>
+                                <span class="status">12m</span>
                             </div>
                         </div>
+                        <span class="last-message">Last message</span>
                     </div>
-                </ng-template>
-            </p-dataView>
-
+                </div>
+            </div>
         </div>
     </p-scrollPanel>
 </div>

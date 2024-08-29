@@ -9,6 +9,7 @@ export const environment = {
         appId: "",
         measurementId: ""
     },
-    apiBaseUrl: "",
+    usersApiBaseUrl: "",
+    discussionsApiBaseUrl: "",
     webSocketUrl: ""
 };

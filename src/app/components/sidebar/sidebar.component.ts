@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../../_interfaces/user';
 import { AuthenticationService } from '../../services/authentication.service';
 import { UserService } from '../../services/user.service';
 import { ReloadComponent } from '../../utils';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -11,9 +12,10 @@ import { ReloadComponent } from '../../utils';
     templateUrl: './sidebar.component.html',
     styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit, OnDestroy {
     @Output() panelEvent = new EventEmitter<string>();
     currentUser: User | undefined;
+    currentUserSubscription!: Subscription;
 
     panels = {
         contacts: "contacts",
@@ -33,9 +35,10 @@ export class SidebarComponent {
     }
 
     ngOnInit() {
-        this.userService.getCurrentUser().subscribe({
+        this.currentUserSubscription = this.userService.getCurrentUser().subscribe({
             next: (user: User) => {
                 this.currentUser = user;
+                // console.log("Get current user from sidebar", user);
             },
             error: (error) => {
                 console.error(error);
@@ -51,5 +54,9 @@ export class SidebarComponent {
     changePanel(panel: string) {
         this.currentPanel = panel;
         this.panelEvent.emit(panel);
+    }
+
+    ngOnDestroy() {
+        this.currentUserSubscription.unsubscribe();
     }
 }

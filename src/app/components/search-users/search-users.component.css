@@ -54,6 +54,17 @@
 .search-bar {
   width: 100%;
   padding: 12px 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pi {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  cursor: pointer;
 }
 
 .search-bar input {
@@ -66,6 +77,9 @@
   width: 100%;
 }
 
+.contacts-panel .spinner{
+    text-align: center;
+}
 .contacts {
   height: 100vh;
 }
@@ -77,36 +91,28 @@
   display: flex;
   flex-direction: row;
   gap: 16px;
-  margin: 1rem 0;
   box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.08);
   padding: 10px;
+  align-items: center;
+  height: 80px;
 }
 
 .contacts .contact:hover {
   background-color: #f3f3f3;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .contact-profile {
-  /* Frame 10 */
-
-  width: 48px;
-  height: 48px;
-
-  border-radius: 50%;
+  width: auto;
+  height: 100%;
+  border-radius: 12px;
 }
-.contact-info {
-  /* Frame 11 */
 
-  /* Auto layout */
+.contact-info {
   display: flex;
   flex-direction: column;
   padding: 0px;
-  gap: 8px;
-
-  /* width: 229px; */
-  height: 69px;
   width: 100%;
 }
 

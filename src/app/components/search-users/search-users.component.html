@@ -1,0 +1,40 @@
+<div class="content">
+    <div class="header">
+        <div class="title">
+            <h1>Find new contacts </h1>
+        </div>
+    </div>
+    <div class="search-bar">
+
+        <input type="text" pInputText placeholder="Search contacts by name" [(ngModel)]="searchQuery"
+            (keydown.enter)="onEnterPressed()" autofocus />
+        <i class="pi pi-search" (click)="searchUsers()"></i>
+        <p-confirmDialog />
+
+    </div>
+
+    <p-scrollPanel class="contacts-panel">
+        <div class="contacts">
+            <p-dataView [value]="contacts">
+                <ng-template pTemplate="list" let-contact>
+                    <div>
+                        <div *ngFor="let contact of contacts">
+                            <div class="contact" (click)="addNewContact($event, contact)">
+                                <img class="contact-profile" [src]="contact.profilePicture" [alt]="contact.name" />
+                                <div class="contact-info">
+                                    <div class="data">
+                                        <span class="name">{{ contact.name }}</span>
+                                        <span class="email">{{ contact.email? contact.email: contact.phoneNumber}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-dataView>
+            <div *ngIf="isSearching" class="spinner">
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+        </div>
+    </p-scrollPanel>
+</div>

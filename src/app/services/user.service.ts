@@ -13,7 +13,7 @@ export class UserService {
     // Used to hold the latest user information
     private userInfoSubject$: BehaviorSubject<User> = new BehaviorSubject<User>({});
     // Observable to be used by other components to get the latest user information
-    public userInfo$: Observable<User> = this.userInfoSubject$.asObservable();
+    private userInfo$: Observable<User> = this.userInfoSubject$.asObservable();
 
     constructor(
         private http: HttpClient,
@@ -27,6 +27,9 @@ export class UserService {
         return this.userInfo$;
     }
 
+    updateUserStatus(status: string): Observable<User> {
+        return this.http.patch<User>(`${this.apiBaseUrl}/status`, { status });
+    }
 
     getCurrentUserDetails(): Observable<User> {
         return this.http.get<User>(`${this.apiBaseUrl}/details`);
@@ -34,6 +37,10 @@ export class UserService {
 
     getUserDetails(id: string): Observable<User> {
         return this.http.get<User>(`${this.apiBaseUrl}/details/${id}`);
+    }
+
+    addContact(id: string): Observable<User> {
+        return this.http.patch<User>(`${this.apiBaseUrl}/contacts/${id}`, {});
     }
 
     registerUser(user: User): Observable<User> {

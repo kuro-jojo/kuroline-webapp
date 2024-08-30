@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { User } from '../../_interfaces/user';
+import { User, userStatuses } from '../../_interfaces/user';
 import { Message } from '../../_interfaces/message';
 import { Discussion } from '../../_interfaces/discussion';
 import { ChatService } from '../../services/chat.service';
@@ -13,13 +13,14 @@ import { Subscription, switchMap } from 'rxjs';
     styleUrl: './discussion.component.css',
 })
 export class DiscussionComponent implements OnInit, OnDestroy {
-
     currentUser: User | undefined;
     currentReceiver: User | undefined;
     messageContent: string = '';
     activeDiscussion: Discussion | undefined;
     lastSenderId: string | undefined;
-    currentReceiverSubscription!: Subscription;
+    userStatuses = userStatuses;
+
+    subscriptions: Subscription[] = [];
 
     constructor(
         private chatService: ChatService,
@@ -36,14 +37,16 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      * Initializes the current user by subscribing to the user service.
      */
     private initializeCurrentUser(): void {
-        this.userService.getCurrentUser().subscribe({
-            next: (user: User) => {
-                this.currentUser = user;
-            },
-            error: (error) => {
-                console.error(error);
-            }
-        });
+        this.subscriptions.push(
+            this.userService.getCurrentUser().subscribe({
+                next: (user: User) => {
+                    this.currentUser = user;
+                },
+                error: (error) => {
+                    console.error(error);
+                }
+            })
+        )
     }
 
     /**
@@ -58,30 +61,39 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      * Subscribes to the current discussion and updates the receiver and discussion details.
      */
     private subscribeToDiscussion(): void {
-        this.currentReceiverSubscription = this.discussionService.getCurrentDiscussion().pipe(
-            switchMap((discussion: Discussion | undefined) => {
-                if (discussion && this.activeDiscussion?.id !== discussion.id) {
-                    this.activeDiscussion = discussion;
+        this.subscriptions.push(
+            this.discussionService.getCurrentDiscussion()
+                .pipe(
+                    switchMap((discussion: Discussion | undefined) => {
+                        if (discussion && this.activeDiscussion?.id !== discussion.id) {
+                            this.activeDiscussion = discussion;
 
-                    if(!this.activeDiscussion.messages) {
-                        this.activeDiscussion.messages = [];
+                            if (!this.activeDiscussion.messages) {
+                                this.activeDiscussion.messages = [];
+                            }
+                            // Connect to the new discussion
+
+                            this.chatService.listen(this.activeDiscussion!.messages!);
+
+                            if (this.activeDiscussion.ownerId === this.currentUser?.id) {
+                                return this.userService.getUserDetails(discussion.contactId);
+                            }
+
+                            if (this.activeDiscussion.contactId === this.currentUser?.id) {
+                                return this.userService.getUserDetails(discussion.ownerId);
+                            }
+                        }
+                        return [];
+                    }))
+                .subscribe({
+                    next: (receiver: User) => {
+                        this.currentReceiver = receiver;
+                    },
+                    error: (error) => {
+                        console.error(error);
                     }
-                    // Connect to the new discussion
-                    
-                    this.chatService.listen(this.activeDiscussion!.messages!);
-
-                    return this.userService.getUserDetails(discussion.contactId);
-                }
-                return [];
-            }))
-            .subscribe({
-                next: (receiver: User) => {
-                    this.currentReceiver = receiver;
-                },
-                error: (error) => {
-                    console.error(error);
-                }
-            });
+                })
+        )
     }
 
     /**
@@ -111,6 +123,6 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      */
     ngOnDestroy(): void {
         this.chatService.disconnect();
-        this.currentReceiverSubscription.unsubscribe();
+        this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { timer } from 'rxjs';
+import { Observable, Subscription, switchMap, timer } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { SelectButtonChangeEvent } from 'primeng/selectbutton';
 import { FileRemoveEvent, FileSelectEvent } from 'primeng/fileupload';
@@ -14,7 +14,7 @@ import { UserService } from '../../services/user.service';
     templateUrl: './signup.component.html',
     styleUrl: './signup.component.css'
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit, OnDestroy {
 
     loadingGoogle = false;
     loading = false; // for basic login
@@ -30,6 +30,7 @@ export class SignupComponent {
         weakPassword: 'auth/weak-password',
     }
 
+    registrationSubscriptions: Subscription[] = [];
 
     constructor(
         private authService: AuthenticationService,
@@ -69,71 +70,109 @@ export class SignupComponent {
     }
 
     /**
-     * Performs the signup process.
-     * 
-     * registers a user with email or phone number based on the user's choice.
-     * 
-     * @returns void
-     */
+  * Performs the signup process.
+  * Registers a user with email or phone number based on the user's choice.
+  * @returns void
+  */
     signup() {
         if (this.registerForm.invalid) {
             return;
         }
-        let user: User = {
+        const user = this.createUserObject();
+        console.log("photo", user.profilePicture);
+        this.loading = true;
+
+        this.registrationSubscriptions.push(
+            this.userService.registerUserWithEmailOrPhoneNumber(user).subscribe({
+                next: (response) => this.onSignupSuccess(response),
+                error: (error) => this.onSignupError(error)
+            })
+        )
+    }
+
+    /**
+     * Creates a user object from the form controls.
+     * @returns User object
+     */
+    private createUserObject(): any {
+        return {
             name: this.formControls['name'].value,
             password: this.formControls['password'].value,
             email: this.formControls['email'].value,
             phoneNumber: this.formControls['phoneNumber'].value,
             profilePicture: this.formControls['profilePicture'].value
-        }
-        console.log("photo", user.profilePicture);
-        this.loading = true;
+        };
+    }
 
-        this.userService.registerUserWithEmailOrPhoneNumber(user).subscribe({
-            next: (response) => {
-                console.log(response);
-                this.messageService.add({ severity: 'success', summary: 'Sign up successful', detail: 'You have successfully signed up' });
-                timer(1500).subscribe(() => {
-                    this.router.navigateByUrl('/login');
-                });
-            },
-            error: (error) => {
-                this.loading = false;
-                console.error(error);
-                this.messageService.add({ severity: 'error', summary: 'Failed to sign up', detail: error.error.message });
-            }
+    /**
+     * Handles successful signup.
+     * @param response - The response from the signup API.
+     */
+    private onSignupSuccess(response: any): void {
+        console.log(response);
+        this.messageService.add({ severity: 'success', summary: 'Sign up successful', detail: 'You have successfully signed up' });
+        timer(1500).subscribe(() => {
+            this.router.navigateByUrl('/login');
         });
     }
 
-    async signInWithGoogle() {
+    /**
+     * Handles errors during signup.
+     * @param error - The error object from the signup API.
+     */
+    private onSignupError(error: any): void {
+        this.loading = false;
+        console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Failed to sign up', detail: error.error.message });
+        this.authService.signOut()?.subscribe();
+    }
+
+    /**
+     * Initiates sign-in with Google.
+     */
+    signInWithGoogle(): void {
         this.loadingGoogle = true;
-        await this.authService.signInWithProvider(Provider.Google).then(() => {
-            this.loadingGoogle = false;
+        this.registrationSubscriptions.push(
+            this.authService.signInWithProvider(Provider.Google)
+                .pipe(
+                    switchMap((result: any) => this.userService.registerUserWithOauth())
+                )
+                .subscribe({
+                    next: (response) => this.onGoogleSignInSuccess(response),
+                    error: (error) => this.onGoogleSignInError(error)
+                })
+        )
+    }
+
+    /**
+     * Handles successful Google sign-in.
+     * @param response - The response from the Google sign-in API.
+     */
+    private onGoogleSignInSuccess(response: any): void {
+        console.log(response);
+        this.loadingGoogle = false;
+        this.messageService.add({ severity: 'success', summary: 'Sign in successful', detail: 'You have been signed in successfully' });
+        timer(1500).subscribe(() => {
             this.router.navigateByUrl('');
-            this.userService.registerUserWithOauth().subscribe({
-                next: (response) => {
-                    console.log(response);
-                    this.loadingGoogle = false;
-                    this.router.navigateByUrl('');
-                },
-                error: (error) => {
-                    this.loadingGoogle = false;
-
-                    console.error(error);
-                    this.authService.signOut();
-                    this.messageService.add({ severity: 'error', summary: 'Failed to sign in', detail: error.message });
-                }
-            });
-
-        }).catch((error) => {
-            this.messageService.add({ severity: 'error', summary: 'Failed to sign in', detail: error.message });
-            this.loadingGoogle = false;
-            console.error("Sign in with Google failed", error);
         });
     }
 
-    signupChoiceChange(event: SelectButtonChangeEvent) {
+    /**
+     * Handles errors during Google sign-in.
+     * @param error - The error object from the Google sign-in API.
+     */
+    private onGoogleSignInError(error: any): void {
+        this.loadingGoogle = false;
+        console.error("Sign in with Google failed", error);
+        this.messageService.add({ severity: 'error', summary: 'Failed to sign in', detail: error.message });
+        this.authService.signOut()?.subscribe();
+    }
 
+    /**
+     * Handles changes in signup choice (email or phone number).
+     * @param event - The event object from the select button change.
+     */
+    signupChoiceChange(event: SelectButtonChangeEvent): void {
         if (event.value === 'phoneNumber') {
             this.showEmail = false;
             this.showPhoneNumber = true;
@@ -143,7 +182,7 @@ export class SignupComponent {
         } else if (event.value === 'email') {
             this.showEmail = true;
             this.showPhoneNumber = false;
-            this.setValidators('email', [Validators.pattern("^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$")]);
+            this.setValidators('email', [Validators.pattern("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$")]);
             this.setValidators('password');
             this.clearValidators('phoneNumber');
         } else {
@@ -155,13 +194,26 @@ export class SignupComponent {
         }
     }
 
-    setValidators(controlName: string, validators: any[] = []) {
+    /**
+     * Sets validators for a form control.
+     * @param controlName - The name of the form control.
+     * @param validators - The array of validators to set.
+     */
+    setValidators(controlName: string, validators: any[] = []): void {
         this.formControls[controlName].setValidators([Validators.required, ...validators]);
         this.formControls[controlName].updateValueAndValidity();
     }
 
-    clearValidators(controlName: string) {
-        this.formControls[controlName].removeValidators([Validators.required]);
+    /**
+     * Clears validators for a form control.
+     * @param controlName - The name of the form control.
+     */
+    clearValidators(controlName: string): void {
+        this.formControls[controlName].clearValidators();
         this.formControls[controlName].updateValueAndValidity();
+    }
+
+    ngOnDestroy(): void {
+        this.registrationSubscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

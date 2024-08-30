@@ -1,16 +1,16 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { UserService } from '../../services/user.service';
 import { ContactsComponent } from '../contacts/contacts.component';
 import { ProfileComponent } from '../profile/profile.component';
-import { User } from '../../_interfaces/user';
+import { User, userStatuses } from '../../_interfaces/user';
 import { SearchUsersComponent } from '../search-users/search-users.component';
+import { Observable, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrl: './home.component.css',
-    // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
     panels = {
@@ -21,23 +21,38 @@ export class HomeComponent {
     }
     panel: string = this.panels.contacts
 
+    subscriptions: Subscription[] = [];
+
     constructor(
         private userService: UserService,
         private messageService: MessageService,
     ) {
-        this.userService.getCurrentUserDetails().subscribe({
-            next: (user: User) => {
-                this.userService.setCurrentUser(user);
-            },
-            error: (error) => {
-                console.error(error);
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while loading user details' });
-            }
-        })
     }
 
     ngOnInit() {
+        this.initializeCurrentUser();
+    }
 
+
+    /**
+     * Initializes the current user by subscribing to the user service.
+     */
+    private initializeCurrentUser(): void {
+        this.subscriptions.push(
+            this.userService.updateUserStatus(userStatuses.online)
+            .pipe(
+                switchMap(() => this.userService.getCurrentUserDetails())
+            )
+            .subscribe({
+                next: (user: User) => {
+                    this.userService.setCurrentUser(user);
+                },
+                error: (error) => {
+                    console.error(error);
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while loading user details' });
+                }
+            })
+        )
     }
 
     changePanel(panel: string) {

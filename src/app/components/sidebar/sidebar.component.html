@@ -21,6 +21,6 @@
     </div>
     <div class="setting">
         <a class="profile" (click)="changePanel(panels.profile)"><img [src]="currentUser?.profilePicture" alt=""></a>
-        <a (click)="changePanel(panels.settings)" [ngClass]="{'active': currentPanel == panels.settings}"><i class="pi pi-cog"></i> </a>
+        <a (click)="logout()" [ngClass]="{'active': currentPanel == panels.settings}"><i class="pi pi-cog"></i> </a>
     </div>
 </div>

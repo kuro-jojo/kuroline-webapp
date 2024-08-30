@@ -35,13 +35,4 @@ export class DiscussionService {
     startDiscussion(discussion: Discussion): Observable<Discussion> {
         return this.http.post<Discussion>(`${this.apiBaseUrl}`, discussion);
     }
-
-    getDiscussionsByOwner(): Observable<Discussion[]> {
-        return this.http.get<Discussion[]>(`${this.apiBaseUrl}/owner`);
-    }
-
-    getContactsFromDiscussions(): Observable<string[]> {
-        return this.http.get<string[]>(`${this.apiBaseUrl}/owner/contacts`);
-    }
-
 }

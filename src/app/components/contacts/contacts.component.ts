@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { User } from '../../_interfaces/user';
+import { User, userStatuses } from '../../_interfaces/user';
 import { DiscussionService } from '../../services/discussion.service';
 import { UserService } from '../../services/user.service';
 import { Discussion } from '../../_interfaces/discussion';
-import { catchError, concatMap, from, mergeMap, Observable, of, Subscription } from 'rxjs';
+import { catchError, concatMap, from, map, mergeMap, Observable, of, Subscription, switchMap } from 'rxjs';
+import { user } from '@angular/fire/auth';
 
 @Component({
     selector: 'app-contacts',
@@ -13,46 +14,55 @@ import { catchError, concatMap, from, mergeMap, Observable, of, Subscription } f
 export class ContactsComponent implements OnInit, OnDestroy {
     contacts: User[] = [];
     currentUser!: User;
-    contactsSubscription!: Subscription
-    contactSubscription!: Subscription;
-
+    subscriptions: Subscription[] = [];
+    userStatuses = userStatuses;
     constructor(
         private discussionService: DiscussionService,
         private userService: UserService,
     ) { }
 
     ngOnInit() {
-        const observable = this.getListOfContactsObservable();
-        this.contactsSubscription = this.subscribeToContactsObservable(observable);
+        this.initializeCurrentUser();
+
     }
 
+
     /**
-     * Subscribes to the contacts observable and updates the contacts array.
-     */
-    private subscribeToContactsObservable(observable: Observable<User>): Subscription {
-        return observable.subscribe({
-            next: (contact: User) => {
-                this.contacts.push(contact);
-            },
-            error: (error) => {
-                console.error(error);
-            }
-        });
+     * Initializes the current user by subscribing to the user service.
+    */
+    private initializeCurrentUser(): void {
+        this.subscriptions.push(
+            this.userService.getCurrentUser()
+                .pipe(
+                    map((user: User) => user),
+                    switchMap((user: User) => {
+                        this.currentUser = user;
+                        return this.getListOfContacts(user)
+                    })
+                ).
+                subscribe({
+                    next: (user: User) => {
+                        this.contacts.push(user);
+                    },
+                    error: (error) => {
+                        console.error(error);
+                    }
+                })
+        )
     }
 
     /**
      * Returns an observable that emits User objects based on contact IDs from discussions.
      * @returns {Observable<User>}
      */
-    private getListOfContactsObservable(): Observable<User> {
-        return this.discussionService.getContactsFromDiscussions().pipe(
-            mergeMap((contactIds: string[]) =>
-                from(contactIds).pipe(
-                    concatMap((contactId: string) => this.userService.getUserDetails(contactId)),
-                    catchError(error => of(error))
-                )
+    private getListOfContacts(user: User): Observable<User> {
+        console.log("Current user c", user);
+        if (!user.contacts) return of();
+        return from(user.contacts).pipe(
+            concatMap((contactId: string) => this.userService.getUserDetails(contactId)),
+            catchError(error => of(error)
             )
-        );
+        )
     }
 
     /**
@@ -60,20 +70,22 @@ export class ContactsComponent implements OnInit, OnDestroy {
      * @param {User} contact - The contact for whom to load the discussion.
      */
     loadDiscussion(contact: User): void {
-        this.contactSubscription = this.discussionService.getDiscussionByContact(contact.id!).subscribe({
-            next: (discussion: Discussion) => {
-                this.discussionService.setCurrentDiscussion(discussion);
-            },
-            error: (error) => {
-                console.error(error);
-            }
-        });
+        this.subscriptions.push(
+            this.discussionService.getDiscussionByContact(contact.id!).subscribe({
+                next: (discussion: Discussion) => {
+                    this.discussionService.setCurrentDiscussion(discussion);
+                    console.log("Discussion loaded", discussion);
+                },
+                error: (error) => {
+                    console.error(error);
+                }
+            })
+        )
     }
 
 
     ngOnDestroy(): void {
         // Clean up subscriptions
-        this.contactsSubscription?.unsubscribe();
-        this.contactSubscription?.unsubscribe();
+        this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

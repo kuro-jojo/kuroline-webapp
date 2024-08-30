@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
+import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, User, UserCredential } from '@angular/fire/auth';
+import { BehaviorSubject, catchError, from, map, Observable, switchMap } from 'rxjs';
+import { UserService } from './user.service';
+import { userStatuses } from '../_interfaces/user';
 
 /**
  * Service responsible for handling authentication operations.
@@ -13,10 +16,13 @@ export class AuthenticationService {
     private idToken?: string | null;
     private rememberMe = false;
     private readonly tokenKey = 'api.token';
+    private refreshToken$: Observable<string> | undefined;
 
     constructor(
         private auth: Auth,
+        private userService: UserService,
     ) {
+        this.refreshToken$ = this.refreshToken();
         this.idToken = this.getToken();
     }
 
@@ -30,18 +36,21 @@ export class AuthenticationService {
             return null;
         }
 
+        // TODO : remove the negation
         if (isTokenExpired(this.idToken)) {
             if (this.rememberMe) {
-                this.refreshToken().then((token) => {
-                    console.log("Token refreshed", token);
-                    alert("Token refreshed in get token");
-                    return this.idToken;
-                }).catch(() => {
-                    this.signOut();
-                    return null;
-                });
+                this.refreshToken$?.subscribe({
+                    next: (token) => {
+                        alert("Token refreshed");
+                        this.setToken(token);
+                    },
+                    error: (error) => {
+                        console.error("Error refreshing token", error);
+                        this.signOut()?.subscribe();
+                    }
+                })
             } else {
-                this.signOut();
+                this.signOut()?.subscribe();
                 return null;
             }
         }
@@ -60,42 +69,62 @@ export class AuthenticationService {
         }
     }
 
-    async signInWithProvider(provider: Provider): Promise<any> {
-        try {
-            if (provider === Provider.Google) {
-                this.firebaseAuthProvider = new GoogleAuthProvider();
-            } else if (provider === Provider.Microsoft) {
-                // this.firebaseAuthProvider = new MicrosoftAuthPrzovider();
-            } else {
-                throw new Error("Unsupported provider");
-            }
-
-            const result = await signInWithPopup(this.auth, this.firebaseAuthProvider);
-
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            if (credential === null) {
-                console.error("Credential is null");
-                return;
-            }
-
-            await this.refreshToken();
-            return result;
-        } catch (error: any) {
-            console.error("Sign in failed", error);
-            throw error;
+    signInWithProvider(provider: Provider): Observable<any> {
+        if (provider === Provider.Google) {
+            this.firebaseAuthProvider = new GoogleAuthProvider();
+        } else if (provider === Provider.Microsoft) {
+            // this.firebaseAuthProvider = new MicrosoftAuthPrzovider();
+        } else {
+            throw new Error("Unsupported provider");
         }
+
+        return from(signInWithPopup(this.auth, this.firebaseAuthProvider)).pipe(
+            switchMap((result: any) => {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                if (credential === null) {
+                    console.error("Credential is null");
+                    return [];
+                }
+
+                return this.refreshToken$?.pipe(
+                    map((token) => {
+                        alert("Token refreshed");
+                        this.setToken(token);
+                    }),
+                    catchError((error) => {
+                        console.error("Error refreshing token", error);
+                        this.signOut()?.subscribe();
+                        throw error;
+                    })
+                ) || [];
+            }),
+            catchError((error) => {
+                console.error("Error signing in with provider", error);
+                throw error;
+            })
+        );
     }
 
-    async signInWithEmail(email: string, password: string): Promise<any> {
-        try {
-            const result = await signInWithEmailAndPassword(this.auth, email, password);
-
-            await this.refreshToken();
-            return result;
-        } catch (error: any) {
-            console.error("Sign in failed", error);
-            throw error;
-        }
+    signInWithEmail(email: string, password: string): Observable<any> {
+        return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
+            switchMap((result: UserCredential) => {
+                return this.refreshToken$?.pipe(
+                    map((token) => {
+                        alert("Token refreshed");
+                        this.setToken(token);
+                    }),
+                    catchError((error) => {
+                        console.error("Error refreshing token", error);
+                        this.signOut()?.subscribe();
+                        throw error;
+                    })
+                ) || [];
+            }),
+            catchError((error) => {
+                console.error("Error signing in with email", error);
+                throw error;
+            })
+        );
     }
 
 
@@ -134,32 +163,42 @@ export class AuthenticationService {
     //         }
     //     }
 
-    async refreshToken(): Promise<void> {
-        return new Promise((resolve, reject) => {
+    refreshToken(): Observable<string> {
+        return new Observable<string>((observer) => {
             this.auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     try {
                         const token = await user.getIdToken();
                         this.setToken(token);
-                        // alert("Token refreshed");
-                        resolve();
+                        observer.next(token);
+                        observer.complete();
                     } catch (error) {
                         console.error("Error getting token", error);
-                        reject(error);
+                        observer.error(error);
                     }
                 } else {
-                    resolve();
+                    observer.complete();
                 }
             });
         });
     }
 
-    signOut() {
+    signOut(): Observable<any> | null {
         if (this.idToken != null) {
-            this.idToken = null;
-            localStorage.clear();
-            sessionStorage.clear();
+            // set the user status to offline
+            return this.userService.updateUserStatus(userStatuses.offline)
+                .pipe(
+                    map(() => {
+                        this.idToken = null;
+                        localStorage.clear();
+                        sessionStorage.clear();
+
+                        this.auth.signOut();
+                    })
+                )
         }
+
+        return null; // Add this line to return null if the condition is not met
     }
 
 }

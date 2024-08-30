@@ -1,21 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { User } from '../../_interfaces/user';
 import { UserService } from '../../services/user.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Discussion } from '../../_interfaces/discussion';
-import { AuthenticationService } from '../../services/authentication.service';
 import { DiscussionService } from '../../services/discussion.service';
+import { Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-contacts',
     templateUrl: './search-users.component.html',
     styleUrl: './search-users.component.css',
 })
-export class SearchUsersComponent {
+export class SearchUsersComponent implements OnInit, OnDestroy {
     contacts!: User[];
     searchQuery: string = '';
     isSearching: boolean = false;
     currentUser: User | undefined;
+
+    subscriptions: Subscription[] = [];
 
     constructor(
         private userService: UserService,
@@ -53,17 +55,19 @@ export class SearchUsersComponent {
             return;
         }
         this.isSearching = true;
-        this.userService.findByName(this.searchQuery).subscribe({
-            next: (users: User[]) => {
-                this.contacts = users;
-                console.log(users);
-                this.isSearching = false;
-            },
-            error: (error) => {
-                this.isSearching = false;
-                console.error(error);
-            }
-        });
+        this.subscriptions.push(
+            this.userService.findByName(this.searchQuery).subscribe({
+                next: (users: User[]) => {
+                    this.contacts = users;
+                    console.log(users);
+                    this.isSearching = false;
+                },
+                error: (error) => {
+                    this.isSearching = false;
+                    console.error(error);
+                }
+            })
+        )
     }
 
     onEnterPressed() {
@@ -85,17 +89,42 @@ export class SearchUsersComponent {
                     ownerId: this.currentUser?.id!,
                     contactId: contact.id!,
                 }
-                this.discussionService.startDiscussion(discussion).subscribe({
-                    next: (discussion: Discussion) => {
-                        console.log(discussion);
-                    },
-                    error: (error) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while starting a new discussion' });
-                        console.error(error);
-                    }
-                });
+
+                this.subscriptions.push(
+                    this.userService.addContact(contact.id!).pipe(
+                        switchMap(() => this.discussionService.startDiscussion(discussion))
+                    ).subscribe({
+                        next: (discussion: Discussion) => {
+                            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New discussion started' });
+                            this.discussionService.setCurrentDiscussion(discussion);
+                            this.updateCurrentUser();
+                        },
+                        error: (error) => {
+                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while starting a new discussion' });
+                            console.error(error);
+                        }
+                    })
+                )
             }
         });
+    }
+
+    private updateCurrentUser(): void {
+        this.subscriptions.push(
+            this.userService.getCurrentUserDetails().subscribe({
+                next: (user: User) => {
+                    this.userService.setCurrentUser(user);
+                    console.log("New user", user);
+                },
+                error: (error) => {
+                    console.error(error);
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while loading user details' });
+                }
+            })
+        )
+    }
+    ngOnDestroy(): void {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 }
 

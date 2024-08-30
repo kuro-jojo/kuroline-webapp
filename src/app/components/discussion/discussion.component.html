@@ -6,7 +6,7 @@
             <div class="data">
                 <span class="name">{{ currentReceiver?.name}}</span>
                 <div class="status">
-                    <span class="bg-success ball"></span>
+                    <span [ngClass]="{' bg-success': currentReceiver?.status == userStatuses.online,' bg-danger': currentReceiver?.status == userStatuses.offline}" class="ball"></span>
                     <span class="text">{{ currentReceiver?.status }}</span>
                 </div>
             </div>

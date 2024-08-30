@@ -47,8 +47,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        this.authService.signOut();
-        ReloadComponent(false, this.router, "/login");
+        this.authService.signOut()?.subscribe({
+            next: () => {
+                this.userService.setCurrentUser({});
+                ReloadComponent(false, this.router, "/login");
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
     }
 
     changePanel(panel: string) {

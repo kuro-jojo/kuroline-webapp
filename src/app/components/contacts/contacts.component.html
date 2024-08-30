@@ -12,6 +12,11 @@
             <input type="text" pInputText placeholder="Search in my contacts" />
         </p-iconField>
     </div>
+    @if (contacts.length == 0) {
+    <div class="empty-contacts">
+        <p>No contacts found</p>
+    </div>
+    }@else {
 
     <p-scrollPanel class="contacts-panel">
         <div class="contacts">
@@ -23,8 +28,8 @@
                             <span class="name">{{ contact.name }}</span>
                             <div>
                                 <span class="status"
-                                    [ngClass]="{' text-success': contact.status == 'online',' text-danger': contact.status == 'offline'}">{{
-                                    contact.status }}</span>
+                                    [ngClass]="{' text-success': contact.status == userStatuses.online,' text-danger': contact.status == userStatuses.offline}">
+                                    {{ contact.status }}</span>
                                 <span class="status">12m</span>
                             </div>
                         </div>
@@ -34,4 +39,5 @@
             </div>
         </div>
     </p-scrollPanel>
+    }
 </div>

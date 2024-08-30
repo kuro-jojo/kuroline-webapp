@@ -36,8 +36,10 @@ export class WebSocketService {
      */
     connect(token: string): void {
         const stompConfig = this.getStompConfig(token);
-        this.client.configure(stompConfig);
-        this.client.activate();
+        this.client.configure(stompConfig);        
+        if (this.client.connectionState$.getValue() !== RxStompState.CLOSING) {
+            this.client.activate();
+        }
     }
 
     /**

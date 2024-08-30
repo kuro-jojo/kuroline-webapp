@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
 
         const { email, password, rememberMe } = this.loginForm.value;
-        this.authService.remember = rememberMe;
+        this.authService.rememberMe = rememberMe;
         this.loading = true;
 
         this.authService.signInWithEmail(email, password).subscribe({

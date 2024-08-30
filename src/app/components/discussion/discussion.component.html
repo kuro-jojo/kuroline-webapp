@@ -6,7 +6,9 @@
             <div class="data">
                 <span class="name">{{ currentReceiver?.name}}</span>
                 <div class="status">
-                    <span [ngClass]="{' bg-success': currentReceiver?.status == userStatuses.online,' bg-danger': currentReceiver?.status == userStatuses.offline}" class="ball"></span>
+                    <span
+                        [ngClass]="{' bg-success': currentReceiver?.status == userStatuses.online,' bg-danger': currentReceiver?.status == userStatuses.offline}"
+                        class="ball"></span>
                     <span class="text">{{ currentReceiver?.status }}</span>
                 </div>
             </div>
@@ -16,24 +18,22 @@
     <div class="discussion">
         <p-scrollPanel [style]="{ width: '100%', height: '95%' }">
             @for (msg of activeDiscussion.messages; track msg.id;let index = $index) {
-
+            @if ((index > 0 && (msg.sentAt! | isAnotherDay:activeDiscussion.messages![index-1].sentAt!)) || index === 0)
+            {
+            <div class="date"> {{ msg.sentAt! | getDate}} </div>
+            }
             <div class="message-box"
-                [ngClass]="{'sender': msg.senderId === currentUser?.id, 'new': index=== (activeDiscussion.messages?.length!-1) }">
+                [ngClass]="{'sender': msg.senderId === currentUser?.id, 'new': index === (activeDiscussion.messages?.length!-1) }">
                 <div class="avatar">
                     @if (index > 0 && activeDiscussion.messages![index-1].senderId !== msg.senderId || index === 0 ) {
-                    <img class="avatar" [src]="msg.senderId === currentUser?.id ? currentUser?.profilePicture : currentReceiver?.profilePicture"
+                    <img class="avatar"
+                        [src]="msg.senderId === currentUser?.id ? currentUser?.profilePicture : currentReceiver?.profilePicture"
                         alt="avatar">
                     }
                 </div>
-                <div class="box-content">
-                    <div class="message">
-                        <div class="message-content">
-                            <span class="text">{{ msg.content }}</span>
-                        </div>
-                        <div class="message-time">
-                            <span class="time">{{ msg.sentAt | date: 'H:mm:ss' }}</span>
-                        </div>
-                    </div>
+                <div class="message">
+                    <div class="message-content"> {{ msg.content }} </div>
+                    <div class="message-time"> {{ msg.sentAt | date: 'H:mm:ss' }} </div>
                 </div>
             </div>
             }

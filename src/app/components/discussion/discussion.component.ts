@@ -20,6 +20,8 @@ export class DiscussionComponent implements OnInit, OnDestroy {
     lastSenderId: string | undefined;
     userStatuses = userStatuses;
 
+    currentMessagesDate: Date = new Date();
+
     subscriptions: Subscription[] = [];
 
     constructor(
@@ -70,7 +72,7 @@ export class DiscussionComponent implements OnInit, OnDestroy {
 
                             if (!this.activeDiscussion.messages) {
                                 this.activeDiscussion.messages = [];
-                            }
+                            } 
                             // Connect to the new discussion
 
                             this.chatService.listen(this.activeDiscussion!.messages!);
@@ -125,4 +127,6 @@ export class DiscussionComponent implements OnInit, OnDestroy {
         this.chatService.disconnect();
         this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
+
+
 }

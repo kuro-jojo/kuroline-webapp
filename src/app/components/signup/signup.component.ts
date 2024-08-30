@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, Subscription, switchMap, timer } from 'rxjs';
+import { Subscription, switchMap, timer } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { SelectButtonChangeEvent } from 'primeng/selectbutton';
 import { FileRemoveEvent, FileSelectEvent } from 'primeng/fileupload';
-import { User } from '../../_interfaces/user';
 import { AuthenticationService, Provider } from '../../services/authentication.service';
 import { UserService } from '../../services/user.service';
 

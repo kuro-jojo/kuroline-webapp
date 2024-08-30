@@ -3,8 +3,7 @@ import { User, userStatuses } from '../../_interfaces/user';
 import { DiscussionService } from '../../services/discussion.service';
 import { UserService } from '../../services/user.service';
 import { Discussion } from '../../_interfaces/discussion';
-import { catchError, concatMap, from, map, mergeMap, Observable, of, Subscription, switchMap } from 'rxjs';
-import { user } from '@angular/fire/auth';
+import { catchError, concatMap, from, map, Observable, of, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-contacts',
@@ -16,6 +15,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
     currentUser!: User;
     subscriptions: Subscription[] = [];
     userStatuses = userStatuses;
+
     constructor(
         private discussionService: DiscussionService,
         private userService: UserService,
@@ -56,7 +56,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
      * @returns {Observable<User>}
      */
     private getListOfContacts(user: User): Observable<User> {
-        console.log("Current user c", user);
         if (!user.contacts) return of();
         return from(user.contacts).pipe(
             concatMap((contactId: string) => this.userService.getUserDetails(contactId)),
@@ -74,7 +73,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
             this.discussionService.getDiscussionByContact(contact.id!).subscribe({
                 next: (discussion: Discussion) => {
                     this.discussionService.setCurrentDiscussion(discussion);
-                    console.log("Discussion loaded", discussion);
                 },
                 error: (error) => {
                     console.error(error);
@@ -82,7 +80,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
             })
         )
     }
-
 
     ngOnDestroy(): void {
         // Clean up subscriptions

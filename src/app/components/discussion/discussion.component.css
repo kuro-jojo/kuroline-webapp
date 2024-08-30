@@ -162,6 +162,15 @@ p-scrollPanel {
   transition: display 0.5s;
 }
 
+.date {
+  background-color: #fff;
+  padding: 10px;
+  width: fit-content;
+  margin: 1rem auto;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
 .discussion .message-box {
   /* Frame 24 */
 
@@ -173,7 +182,7 @@ p-scrollPanel {
   gap: 16px;
 }
 
-.discussion .message-box .box-content {
+.discussion .message-box .message {
   max-width: 50%;
 }
 
@@ -185,6 +194,11 @@ p-scrollPanel {
   /* Frame 29 */
   justify-content: flex-end;
   /* max-width: 80%; */
+}
+
+.sender .message-content {
+  background: var(--primary-color) !important;
+  color: #fff;
 }
 
 .sender .avatar {

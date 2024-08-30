@@ -1,5 +1,5 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
 import { Router } from '@angular/router';
 import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
@@ -22,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
             });
             return next.handle(req);
         }
-        if (this.authService.remember) {
+        if (this.authService.rememberMe) {
             return from(this.authService.refreshToken()).pipe(
                 switchMap(() => {
                     console.log('Refreshing token');

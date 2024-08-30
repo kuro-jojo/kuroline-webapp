@@ -25,7 +25,6 @@ import { ImageModule } from 'primeng/image';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-
 import { HomeComponent } from './components/home/home.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ContactsComponent } from './components/contacts/contacts.component';
@@ -38,8 +37,8 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routes';
 import { AuthInterceptor } from './auth.interceptor';
 import { SearchUsersComponent } from './components/search-users/search-users.component';
-
-
+import { IsAnotherDay } from './pipes/is-another-day.pipe';
+import { GetDatePipe } from './pipes/get-date.pipe';
 
 @NgModule({
     declarations: [
@@ -51,7 +50,9 @@ import { SearchUsersComponent } from './components/search-users/search-users.com
         LoginComponent,
         SignupComponent,
         ProfileComponent,
-        SearchUsersComponent
+        SearchUsersComponent,
+        IsAnotherDay,
+        GetDatePipe
     ],
     imports: [
         CommonModule,

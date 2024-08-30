@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, User, UserCredential } from '@angular/fire/auth';
-import { BehaviorSubject, catchError, from, map, Observable, switchMap } from 'rxjs';
+import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 import { UserService } from './user.service';
 import { userStatuses } from '../_interfaces/user';
 
 /**
  * Service responsible for handling authentication operations.
- * 
  */
 @Injectable({
     providedIn: 'root'
 })
 export class AuthenticationService {
-    private firebaseAuthProvider !: AuthProvider;
+    private firebaseAuthProvider!: AuthProvider;
     private idToken?: string | null;
-    private rememberMe = false;
     private readonly tokenKey = 'api.token';
     private refreshToken$: Observable<string> | undefined;
 
@@ -26,42 +24,43 @@ export class AuthenticationService {
         this.idToken = this.getToken();
     }
 
-    get isLoggedIn() {
+    /**
+     * Checks if the user is logged in.
+     */
+    get isLoggedIn(): boolean {
         return this.getToken() !== null;
     }
 
+    /**
+     * Retrieves the stored token from localStorage or sessionStorage.
+     */
     public getToken(): string | null {
         this.idToken = localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.tokenKey);
-        if (this.idToken === null || this.idToken === undefined) {
+        if (!this.idToken || isTokenExpired(this.idToken)) {
+            this.handleExpiredToken();
             return null;
-        }
-
-        // TODO : remove the negation
-        if (isTokenExpired(this.idToken)) {
-            if (this.rememberMe) {
-                this.refreshToken$?.subscribe({
-                    next: (token) => {
-                        alert("Token refreshed");
-                        this.setToken(token);
-                    },
-                    error: (error) => {
-                        console.error("Error refreshing token", error);
-                        this.signOut()?.subscribe();
-                    }
-                })
-            } else {
-                this.signOut()?.subscribe();
-                return null;
-            }
         }
         return this.idToken;
     }
 
-    public set remember(value: boolean) {
-        this.rememberMe = value;
+    /**
+     * Sets the rememberMe flag in localStorage.
+     */
+    public set rememberMe(value: boolean) {
+        localStorage.setItem('rememberMe', value ? 'true' : 'false');
     }
 
-    public setToken(token: string) {
+    /**
+     * Gets the rememberMe flag from localStorage.
+     */
+    public get rememberMe(): boolean {
+        return localStorage.getItem('rememberMe') === 'true';
+    }
+
+    /**
+     * Stores the token in localStorage or sessionStorage based on rememberMe flag.
+     */
+    public setToken(token: string): void {
         if (this.rememberMe) {
             localStorage.setItem(this.tokenKey, token);
         } else {
@@ -69,106 +68,37 @@ export class AuthenticationService {
         }
     }
 
+    /**
+     * Signs in using a specified provider.
+     */
     signInWithProvider(provider: Provider): Observable<any> {
-        if (provider === Provider.Google) {
-            this.firebaseAuthProvider = new GoogleAuthProvider();
-        } else if (provider === Provider.Microsoft) {
-            // this.firebaseAuthProvider = new MicrosoftAuthPrzovider();
-        } else {
-            throw new Error("Unsupported provider");
-        }
+        this.firebaseAuthProvider = this.getAuthProvider(provider);
 
         return from(signInWithPopup(this.auth, this.firebaseAuthProvider)).pipe(
-            switchMap((result: any) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                if (credential === null) {
-                    console.error("Credential is null");
-                    return [];
-                }
-
-                return this.refreshToken$?.pipe(
-                    map((token) => {
-                        alert("Token refreshed");
-                        this.setToken(token);
-                    }),
-                    catchError((error) => {
-                        console.error("Error refreshing token", error);
-                        this.signOut()?.subscribe();
-                        throw error;
-                    })
-                ) || [];
-            }),
-            catchError((error) => {
-                console.error("Error signing in with provider", error);
-                throw error;
-            })
+            switchMap(result => this.handleSignInResult(result)),
+            catchError(error => this.handleError("Error signing in with provider", error))
         );
     }
 
+    /**
+     * Signs in using email and password.
+     */
     signInWithEmail(email: string, password: string): Observable<any> {
         return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
-            switchMap((result: UserCredential) => {
-                return this.refreshToken$?.pipe(
-                    map((token) => {
-                        alert("Token refreshed");
-                        this.setToken(token);
-                    }),
-                    catchError((error) => {
-                        console.error("Error refreshing token", error);
-                        this.signOut()?.subscribe();
-                        throw error;
-                    })
-                ) || [];
-            }),
-            catchError((error) => {
-                console.error("Error signing in with email", error);
-                throw error;
-            })
+            switchMap(result => this.handleSignInResult(result)),
+            catchError(error => this.handleError("Error signing in with email", error))
         );
     }
 
-
-    // TODO: Implement registration on client side
-
-    // async registerWithEmail(user: User): Promise<any> {
-    //     try {
-    //         const result = await createUserWithEmailAndPassword(this.auth, user.email!, user.password!);
-
-    //         await this.refreshToken();
-    //         return result;
-    //     }
-    //     catch (error: any) {
-    //         console.error("Register failed", error);
-    //         throw error;
-    //     }
-    // }
-
-    // async registerWithPhoneNumber(user: User): Promise<any> {
-    //         try {
-    //             const appVerifier = new RecaptchaVerifier(this.auth, 'register-btn', {
-    //                 'size': 'invisible',
-    //                 'callback': (response) => {
-    //                   // reCAPTCHA solved, allow signInWithPhoneNumber.
-    //                   onSignInSubmit();
-    //                 }
-    //               });
-    //             const result = await createUserWithEmailAndPassword(this.auth, user.phoneNumber!, user.password!);
-
-    //             await this.refreshToken();
-    //             return result;
-    //         }
-    //         catch (error: any) {
-    //             console.error("Register failed", error);
-    //             throw error;
-    //         }
-    //     }
-
+    /**
+     * Refreshes the authentication token.
+     */
     refreshToken(): Observable<string> {
         return new Observable<string>((observer) => {
             this.auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     try {
-                        const token = await user.getIdToken();
+                        const token = await user.getIdToken(false);
                         this.setToken(token);
                         observer.next(token);
                         observer.complete();
@@ -183,27 +113,90 @@ export class AuthenticationService {
         });
     }
 
+    /**
+     * Signs out the user and clears stored tokens.
+     */
     signOut(): Observable<any> | null {
-        if (this.idToken != null) {
-            // set the user status to offline
-            return this.userService.updateUserStatus(userStatuses.offline)
-                .pipe(
-                    map(() => {
-                        this.idToken = null;
-                        localStorage.clear();
-                        sessionStorage.clear();
-
-                        this.auth.signOut();
-                    })
-                )
+        if (this.idToken) {
+            return this.userService.updateUserStatus(userStatuses.offline).pipe(
+                map(() => {
+                    this.clearTokens();
+                    this.auth.signOut();
+                })
+            );
         }
-
-        return null; // Add this line to return null if the condition is not met
+        return null;
     }
 
+    /**
+     * Clears tokens from localStorage and sessionStorage.
+     */
+    private clearTokens(): void {
+        this.idToken = null;
+        localStorage.clear();
+        sessionStorage.clear();
+    }
+
+    /**
+     * Handles the result of a sign-in operation.
+     */
+    private handleSignInResult(result: any, hasProvider: boolean = false): Observable<any> {
+        if (hasProvider) {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (!credential) {
+                console.error("Credential is null");
+                return of()
+            }
+        }
+
+        return this.refreshToken$?.pipe(
+            map(token => this.setToken(token)),
+            catchError(error => this.handleError("Error refreshing token", error))
+        ) || of()
+    }
+
+    /**
+     * Handles errors during authentication operations.
+     */
+    private handleError(message: string, error: any): Observable<never> {
+        console.error(message, error);
+        this.signOut()?.subscribe();
+        throw error;
+    }
+
+    /**
+     * Handles expired tokens by attempting to refresh or signing out.
+     */
+    private handleExpiredToken(): void {
+        if (this.rememberMe) {
+            this.refreshToken$?.subscribe({
+                next: token => this.setToken(token),
+                error: error => this.handleError("Error refreshing token", error)
+            });
+        } else {
+            this.signOut()?.subscribe();
+        }
+    }
+
+    /**
+     * Returns the appropriate AuthProvider based on the specified provider.
+     */
+    private getAuthProvider(provider: Provider): AuthProvider {
+        switch (provider) {
+            case Provider.Google:
+                return new GoogleAuthProvider();
+            case Provider.Microsoft:
+            // return new MicrosoftAuthProvider();
+            default:
+                throw new Error("Unsupported provider");
+        }
+    }
 }
 
-function isTokenExpired(token: string) {
+/**
+ * Checks if the token is expired.
+ */
+function isTokenExpired(token: string): boolean {
     const expiry = (JSON.parse(atob(token.split('.')[1]))).exp;
     return (Math.floor((new Date).getTime() / 1000)) >= expiry;
 }

@@ -5,7 +5,7 @@ import { ContactsComponent } from '../contacts/contacts.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { User, userStatuses } from '../../_interfaces/user';
 import { SearchUsersComponent } from '../search-users/search-users.component';
-import { Observable, Subscription, switchMap } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-home',

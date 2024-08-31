@@ -23,7 +23,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.initializeCurrentUser();
-
     }
 
 

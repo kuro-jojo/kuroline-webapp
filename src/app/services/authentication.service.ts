@@ -118,8 +118,14 @@ export class AuthenticationService {
     /**
      * Signs out the user and clears stored tokens.
      */
-    signOut(): Observable<any> | null {
+    signOut(inFailure:boolean = false): Observable<any> | null {
         if (this.idToken) {
+            if(inFailure){
+                this.clearTokens();
+                this.websocketService.disconnect();
+                this.auth.signOut();
+                return null;
+            }
             return this.userService.updateUserStatus(userStatuses.offline).pipe(
                 map(() => {
                     this.clearTokens();

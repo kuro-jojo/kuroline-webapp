@@ -43,10 +43,6 @@ export class UserService {
         return this.http.patch<User>(`${this.apiBaseUrl}/contacts/${id}`, {});
     }
 
-    registerUser(user: User): Observable<User> {
-        return this.http.post<User>(`${this.apiBaseUrl}`, user);
-    }
-
     registerUserWithEmailOrPhoneNumber(user: User): Observable<User> {
 
         const formData = new FormData();
@@ -59,7 +55,7 @@ export class UserService {
     }
 
     registerUserWithOauth(): Observable<any> {
-        return this.http.post<any>(`${this.apiBaseUrl}/oauth`, {});
+        return this.http.post<any>(`${this.apiBaseUrl}/register/oauth`, {});
     }
 
     updateUser(user: User): Observable<User> {
@@ -75,16 +71,20 @@ export class UserService {
     updateUserName(name: string): Observable<any> {
         return this.http.put<User>(`${this.apiBaseUrl}/name`, { name });
     }
-
-    private findBy(field: string, query: string): Observable<User[]> {
-        return this.http.get<User[]>(`${this.apiBaseUrl}?t=${field}&q=${query}`);
+    
+    removeContact(id: string): Observable<User> {
+        return this.http.delete<User>(`${this.apiBaseUrl}/contacts/${id}`);
     }
-
+    
     findByName(name: string): Observable<User[]> {
         return this.findBy('name', name);
     }
-
+    
     findByEmail(email: string): Observable<User[]> {
         return this.findBy('email', email);
+    }
+   
+    private findBy(field: string, query: string): Observable<User[]> {
+        return this.http.get<User[]>(`${this.apiBaseUrl}?t=${field}&q=${query}`);
     }
 }

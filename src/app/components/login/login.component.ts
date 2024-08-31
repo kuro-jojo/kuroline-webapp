@@ -70,6 +70,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 const errorMessage = error.code === 'auth/invalid-credential' ? 'Invalid credentials' : error.message;
                 this.messageService.add({ severity: 'error', summary: 'Failed to sign in', detail: errorMessage });
                 console.error("Sign in failed", error);
+                this.authService.signOut(true)?.subscribe();
             }
         });
     }
@@ -92,6 +93,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.loadingGoogle = false;
                 console.error("Sign in with Google failed", error);
                 this.messageService.add({ severity: 'error', summary: 'Failed to sign in', detail: error.message });
+                this.authService.signOut(true)?.subscribe();
             }
         });
     }

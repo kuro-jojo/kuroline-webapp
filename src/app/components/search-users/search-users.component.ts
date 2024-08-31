@@ -4,7 +4,7 @@ import { UserService } from '../../services/user.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Discussion } from '../../_interfaces/discussion';
 import { DiscussionService } from '../../services/discussion.service';
-import { Subscription, switchMap } from 'rxjs';
+import { map, Subscription, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-contacts',
@@ -87,16 +87,24 @@ export class SearchUsersComponent implements OnInit, OnDestroy {
                 }
 
                 this.subscriptions.push(
-                    this.userService.addContact(contact.id!).pipe(
-                        switchMap(() => this.discussionService.startDiscussion(discussion))
+                    this.discussionService.startDiscussion(discussion).pipe(
+                        switchMap((discussion: Discussion) =>
+                            this.userService.addContact(contact.id!).pipe(
+                                map(() => discussion)
+                            )
+                        )
                     ).subscribe({
                         next: (discussion: Discussion) => {
-                            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New discussion started' });
+                            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New discussion started and contact added' });
                             this.discussionService.setCurrentDiscussion(discussion);
                             this.updateCurrentUser();
                         },
                         error: (error) => {
-                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while starting a new discussion' });
+                            if (error && error.status === 409) {
+                                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'A discussion already exists with this contact' });
+                            }else{
+                                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while starting a new discussion or adding contact' });
+                            }
                             console.error(error);
                         }
                     })

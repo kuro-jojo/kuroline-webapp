@@ -3,6 +3,7 @@ import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, sig
 import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 import { UserService } from './user.service';
 import { userStatuses } from '../_interfaces/user';
+import { WebSocketService } from './web-socket.service';
 
 /**
  * Service responsible for handling authentication operations.
@@ -19,6 +20,7 @@ export class AuthenticationService {
     constructor(
         private auth: Auth,
         private userService: UserService,
+        private websocketService: WebSocketService,
     ) {
         this.refreshToken$ = this.refreshToken();
         this.idToken = this.getToken();
@@ -121,6 +123,7 @@ export class AuthenticationService {
             return this.userService.updateUserStatus(userStatuses.offline).pipe(
                 map(() => {
                     this.clearTokens();
+                    this.websocketService.disconnect();
                     this.auth.signOut();
                 })
             );

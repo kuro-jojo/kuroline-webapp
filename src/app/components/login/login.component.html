@@ -12,12 +12,12 @@
         <form class="col-md-9" [formGroup]="loginForm" (ngSubmit)="login()">
             <div class="mb-3 d-flex flex-column gap-2">
                 <label for="email">email</label>
-                <input pInputText id="email" aria-describedby="email-help" formControlName="email" variant="filled" />
+                <input pInputText id="email" aria-describedby="email-help" formControlName="email" variant="filled" autofocus (keydown.enter)="login()" />
             </div>
             <div class="mb-3 d-flex flex-column gap-2">
                 <label for="password">Password</label>
                 <p-password inputId="password" feedback="false" formControlName="password" [toggleMask]="true"
-                    variant="filled" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" />
+                    variant="filled" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" (keydown.enter)="login()"/>
                 <!-- <p-password inputId="password" formControlName="password" [toggleMask]="true"
                     promptLabel="Choose a password" weakLabel="Too simple" mediumLabel="Average complexity"
                     strongLabel="Complex password" variant="filled"  [style]="{'width':'100%'}"

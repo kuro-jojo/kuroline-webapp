@@ -70,10 +70,6 @@ export class SearchUsersComponent implements OnInit, OnDestroy {
         )
     }
 
-    onEnterPressed() {
-        this.searchUsers();
-    }
-
     addNewContact(event: Event, contact: User) {
         this.confirmationService.confirm({
             target: event.target as EventTarget,

@@ -15,7 +15,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
     currentUser!: User;
     subscriptions: Subscription[] = [];
     userStatuses = userStatuses;
-
+    
     constructor(
         private discussionService: DiscussionService,
         private userService: UserService,

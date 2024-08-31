@@ -33,7 +33,17 @@
                 </div>
                 <div class="message">
                     <div class="message-content"> {{ msg.content }} </div>
-                    <div class="message-time"> {{ msg.sentAt | date: 'H:mm:ss' }} </div>
+                    <div class="message-time">
+                        {{ msg.sentAt | date: 'HH:mm' }}
+                        @if (msg.senderId === currentUser?.id) {
+                        @if (msg.status === messageStatues.sent) {
+                        <i class="pi pi-check status"></i>
+                        }@else if (msg.status === messageStatues.read) {
+                        <i class="pi pi-check status colored"></i>
+                        <i class="pi pi-check status colored"></i>
+                        }
+                        }
+                    </div>
                 </div>
             </div>
             }
@@ -43,7 +53,7 @@
         <p-iconField iconPosition="right" class="w-75 mx-auto">
             <p-inputIcon styleClass="pi pi-send" class="send-icon" (click)="sendMessage()" />
             <input type="text" pInputText placeholder="Type a message" class="w-100" [(ngModel)]="messageContent"
-                (keydown.enter)="onEnterPressed()" autofocus />
+                (keydown.enter)="sendMessage()" autofocus />
         </p-iconField>
     </div>
     }@else{

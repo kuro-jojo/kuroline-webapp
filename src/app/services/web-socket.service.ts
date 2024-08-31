@@ -36,7 +36,7 @@ export class WebSocketService {
      */
     connect(token: string): void {
         const stompConfig = this.getStompConfig(token);
-        this.client.configure(stompConfig);        
+        this.client.configure(stompConfig);
         if (this.client.connectionState$.getValue() !== RxStompState.CLOSING) {
             this.client.activate();
         }
@@ -61,12 +61,13 @@ export class WebSocketService {
 
     /**
      * Sends a message through the WebSocket connection.
+     * @param destination - The destination endpoint.
      * @param message - The message to send.
      */
-    send(message: Message): void {
+    private sendMessage(destination: string, message: any): void {
         if (this.client.active) {
             this.client.publish({
-                destination: '/app/send',
+                destination,
                 body: JSON.stringify(message)
             });
         } else {
@@ -75,12 +76,50 @@ export class WebSocketService {
     }
 
     /**
-     * Listens for messages from the WebSocket connection.
+     * Sends a new message through the WebSocket connection.
+     * @param message - The message to send.
+     */
+    sendNewMessage(message: Message): void {
+        this.sendMessage('/app/send', message);
+    }
+
+    /**
+     * Sends an updated message through the WebSocket connection.
+     * @param message - The message to send.
+     */
+    sendUpdatedMessage(message: Message): void {
+        this.sendMessage('/app/update', message);
+    }
+
+    /**
+     * Sends multiple updated messages through the WebSocket connection.
+     * @param messages - The messages to send.
+     */
+    sendUpdateMessages(messages: Message[]): void {
+        this.sendMessage('/app/update-messages', messages);
+    }
+
+    /**
+     * Listens for new messages from the WebSocket connection.
      * @returns An observable that emits received messages.
      */
-    listen(): Observable<Message> {
-        return this.client.watch('/topic/public').pipe(
+    listenForNewMessage(): Observable<Message> {
+        return this.client.watch('/topic/message').pipe(
             map((message: any) => JSON.parse(message.body) as Message),
+            catchError((err) => {
+                console.error('Error receiving message', err);
+                return throwError(() => err);
+            })
+        );
+    }
+
+    /**
+     * Listens for a list of messages from the WebSocket connection.
+     * @returns An observable that emits received messages.
+     */
+    listenForListOfMessages(): Observable<Message[]> {
+        return this.client.watch('/topic/messages').pipe(
+            map((message: any) => JSON.parse(message.body) as Message[]),
             catchError((err) => {
                 console.error('Error receiving message', err);
                 return throwError(() => err);
@@ -95,7 +134,7 @@ export class WebSocketService {
         if (this.client.active) {
             console.log('Disconnecting WebSocket');
             this.client.deactivate();
-            this.isConnected$.next(false);
+            this.isConnected$.complete();
         }
     }
 

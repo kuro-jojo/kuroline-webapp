@@ -50,12 +50,16 @@
         </p-scrollPanel>
     </div>
     <div class="send-message">
-        <p-iconField iconPosition="right" class="w-75 mx-auto">
+        <i class="pi pi-face-smile" (click)="openEmojiPicker()"></i>
+        <p-iconField iconPosition="right" class="w-95">
             <p-inputIcon styleClass="pi pi-send" class="send-icon" (click)="sendMessage()" />
             <input type="text" pInputText placeholder="Type a message" class="w-100" [(ngModel)]="messageContent"
                 (keydown.enter)="sendMessage()" autofocus />
         </p-iconField>
     </div>
+    <emoji-mart *ngIf="isEmojiPickerOpened" (emojiSelect)="addEmojiToMessage( $event)" title="Pick your emoji…"
+        emoji="point_up" [darkMode]="false" class="emoji"></emoji-mart>
+
     }@else{
     <div class="empty-discussion">
         <p>Start a conversation with a contact</p>

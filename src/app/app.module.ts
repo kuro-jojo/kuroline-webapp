@@ -40,6 +40,8 @@ import { SearchUsersComponent } from './components/search-users/search-users.com
 import { IsAnotherDay } from './pipes/is-another-day.pipe';
 import { GetDatePipe } from './pipes/get-date.pipe';
 
+import { PickerComponent } from '@ctrl/ngx-emoji-mart';
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -77,7 +79,8 @@ import { GetDatePipe } from './pipes/get-date.pipe';
         SelectButtonModule,
         FileUploadModule,
         ImageModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        PickerComponent,
     ],
     bootstrap: [AppComponent],
     providers: [

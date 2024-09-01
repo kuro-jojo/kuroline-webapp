@@ -15,7 +15,8 @@ export class ContactsComponent implements OnInit, OnDestroy {
     currentUser!: User;
     subscriptions: Subscription[] = [];
     userStatuses = userStatuses;
-    
+    activeContact: string | undefined;
+
     constructor(
         private discussionService: DiscussionService,
         private userService: UserService,
@@ -71,6 +72,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
             this.discussionService.getDiscussionByContact(contact.id!).subscribe({
                 next: (discussion: Discussion) => {
+                    this.activeContact = contact.id;
                     this.discussionService.setCurrentDiscussion(discussion);
                 },
                 error: (error) => {

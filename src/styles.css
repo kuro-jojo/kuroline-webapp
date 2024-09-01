@@ -12,3 +12,13 @@ body {
   padding: 0;
   margin: 0;
 }
+
+.w-95 {
+  width: 95% !important;
+}
+
+/* For emojies container*/
+
+.emoji-mart {
+  width: 100% !important;
+}

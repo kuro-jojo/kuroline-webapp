@@ -235,13 +235,13 @@ p-scrollPanel {
   margin-left: auto;
 }
 
-.pi.status{
-    font-size: 0.8rem;
+.pi.status {
+  font-size: 0.8rem;
 }
 
-.pi.status.colored{
-    color: var(--green);
-    font-weight: bold;
+.pi.status.colored {
+  color: var(--green);
+  font-weight: bold;
 }
 
 .send-message {
@@ -254,15 +254,27 @@ p-scrollPanel {
   gap: 24px;
 
   margin: 0 auto;
+  margin-bottom: 5px;
   width: 100%;
   height: 60px;
   /* margin-bottom: 10px; */
   border-radius: 4px;
   /* background-color: rgba(230, 225, 230, 0.137); */
-  background-color: rgba(182, 181, 181, 0.774);
+  background-color: rgba(212, 212, 212, 0.35);
   z-index: 100;
 }
 
 .send-icon {
+  cursor: pointer;
+}
+
+.emoji {
+  position: absolute;
+  bottom: 65px;
+}
+
+.pi-face-smile {
+  font-size: 1.5rem;
+  color: var(--primary-color);
   cursor: pointer;
 }

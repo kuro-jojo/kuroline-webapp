@@ -21,7 +21,7 @@
     <p-scrollPanel class="contacts-panel">
         <div class="contacts">
             <div *ngFor="let contact of contacts; let first = first">
-                <div class="contact" (click)="loadDiscussion(contact)">
+                <div class="contact" [ngClass]="{'active': activeContact === contact.id}" (click)="loadDiscussion(contact)">
                     <img class="contact-profile" [src]="contact.profilePicture" [alt]="contact.name" />
                     <div class="contact-info">
                         <div class="data">

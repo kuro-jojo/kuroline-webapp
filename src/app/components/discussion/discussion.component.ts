@@ -8,6 +8,7 @@ import { Discussion } from '../../_interfaces/discussion';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
 import { DiscussionService } from '../../services/discussion.service';
+import { EmojiEvent } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 
 @Component({
     selector: 'app-discussion',
@@ -23,7 +24,9 @@ export class DiscussionComponent implements OnInit, OnDestroy {
     userStatuses = userStatuses;
     messageStatues = messageStatues;
 
-    private subscriptions = new Subscription();
+    subscriptions = new Subscription();
+
+    isEmojiPickerOpened: boolean = false;
 
     constructor(
         private chatService: ChatService,
@@ -35,7 +38,7 @@ export class DiscussionComponent implements OnInit, OnDestroy {
         this.initializeCurrentUser();
         this.initializeDiscussion();
     }
-
+ 
     /**
      * Initializes the current user by subscribing to the user service.
      */
@@ -163,6 +166,17 @@ export class DiscussionComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Opens the emoji picker.
+     */
+
+    openEmojiPicker(): void {
+        this.isEmojiPickerOpened = !this.isEmojiPickerOpened;
+    }
+
+    addEmojiToMessage(event: EmojiEvent): void {
+        this.messageContent += event.emoji.native;
+    }
     /**
      * Cleans up subscriptions and disconnects from the chat service when the component is destroyed.
      */

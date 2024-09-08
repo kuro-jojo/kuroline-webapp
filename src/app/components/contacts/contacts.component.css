@@ -71,15 +71,15 @@
   margin-top: 1rem;
 }
 
-.empty-contacts{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin:auto;
+.empty-contacts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: auto;
 }
 
 .contacts .contact {
@@ -99,8 +99,8 @@
   border-radius: 4px;
 }
 
-.contacts .contact.active{
-    background-color: #f3f3f3
+.contacts .contact.active {
+  background-color: #f3f3f3;
 }
 
 .contact-profile {

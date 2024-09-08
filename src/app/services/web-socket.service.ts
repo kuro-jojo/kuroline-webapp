@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { RxStomp, RxStompState } from "@stomp/rx-stomp";
 import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
 import { Message } from '../_interfaces/message';
@@ -8,19 +8,20 @@ import { environment } from '../../environments/environment';
 @Injectable({
     providedIn: 'root'
 })
-export class WebSocketService {
+export class WebSocketService implements OnDestroy {
 
     private readonly client: RxStomp = new RxStomp();
-    private readonly isConnected$ = new BehaviorSubject<boolean>(false);
+    private isConnected$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    private readonly webSocketUrl = environment.apiUrl + environment.chatWebsocketEndpoint;
 
-    constructor() {
-        this.initializeConnectionStateMonitoring();
-    }
+    constructor() { }
 
     /**
      * Initializes the monitoring of the WebSocket connection state.
-     */
-    private initializeConnectionStateMonitoring(): void {
+    */
+    initializeConnectionStateMonitoring(): void {
+        this.isConnected$ = new BehaviorSubject<boolean>(false);
+
         this.client.connectionState$.subscribe((state: RxStompState) => {
             const isConnected = state === RxStompState.OPEN;
             this.isConnected$.next(isConnected);
@@ -37,7 +38,8 @@ export class WebSocketService {
     connect(token: string): void {
         const stompConfig = this.getStompConfig(token);
         this.client.configure(stompConfig);
-        if (this.client.connectionState$.getValue() !== RxStompState.CLOSING) {
+
+        if (this.client.connectionState$.getValue() !== RxStompState.CLOSING && this.client.connectionState$.getValue() !== RxStompState.OPEN) {
             this.client.activate();
         }
     }
@@ -49,7 +51,7 @@ export class WebSocketService {
      */
     private getStompConfig(token: string): InjectableRxStompConfig {
         return {
-            brokerURL: environment.webSocketUrl,
+            brokerURL: this.webSocketUrl,
             connectHeaders: {
                 Authorization: `Bearer ${token}`
             },
@@ -131,7 +133,7 @@ export class WebSocketService {
      * Disconnects the WebSocket connection.
      */
     disconnect(): void {
-        if (this.client.active) {
+        if (this.isConnected$.getValue()) {
             console.log('Disconnecting WebSocket');
             this.client.deactivate();
             this.isConnected$.complete();
@@ -144,5 +146,12 @@ export class WebSocketService {
      */
     getIsConnectionOpened(): Observable<boolean> {
         return this.isConnected$.asObservable();
+    }
+
+    /**
+     * Cleanup logic when the service is destroyed.
+     */
+    ngOnDestroy(): void {
+        this.disconnect();
     }
 }

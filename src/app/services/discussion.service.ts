@@ -12,7 +12,7 @@ import { Message } from '../_interfaces/message';
     providedIn: 'root'
 })
 export class DiscussionService {
-    private apiBaseUrl = environment.discussionsApiBaseUrl;
+    private discussionApiEndpoint = environment.apiUrl + environment.chatEndpoint + '/discussions';
     private currentDiscussionSubject$ = new BehaviorSubject<Discussion | undefined>(undefined);
     private currentDiscussion$: Observable<Discussion | undefined> = this.currentDiscussionSubject$.asObservable();
 
@@ -22,7 +22,7 @@ export class DiscussionService {
      * Sets the current discussion.
      * @param discussion The discussion to set as current.
      */
-    setCurrentDiscussion(discussion: Discussion): void {
+    setCurrentDiscussion(discussion: Discussion | undefined): void {
         this.currentDiscussionSubject$.next(discussion);
     }
 
@@ -40,7 +40,7 @@ export class DiscussionService {
      * @returns An observable of the discussion.
      */
     getDiscussionByContact(contactId: string): Observable<Discussion> {
-        return this.http.get<Discussion>(`${this.apiBaseUrl}/contacts/${contactId}`);
+        return this.http.get<Discussion>(`${this.discussionApiEndpoint}/contacts/${contactId}`);
     }
 
     /**
@@ -49,7 +49,7 @@ export class DiscussionService {
      * @returns An observable of the created discussion.
      */
     startDiscussion(discussion: Discussion): Observable<Discussion> {
-        return this.http.post<Discussion>(`${this.apiBaseUrl}`, discussion);
+        return this.http.post<Discussion>(`${this.discussionApiEndpoint}`, discussion);
     }
 
     /**
@@ -59,7 +59,7 @@ export class DiscussionService {
      * @returns An observable of the updated message.
      */
     updateMessageStatus(discussionId: string, message: Message): Observable<Message> {
-        return this.http.patch<Message>(`${this.apiBaseUrl}/${discussionId}/messages`, message);
+        return this.http.patch<Message>(`${this.discussionApiEndpoint}/${discussionId}/messages`, message);
     }
 
     /**

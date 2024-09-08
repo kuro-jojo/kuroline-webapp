@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Auth, AuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
-import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, from, map, Observable, of, retry, switchMap } from 'rxjs';
 import { UserService } from './user.service';
 import { userStatuses } from '../_interfaces/user';
 import { WebSocketService } from './web-socket.service';
@@ -116,26 +116,39 @@ export class AuthenticationService {
     }
 
     /**
-     * Signs out the user and clears stored tokens.
-     */
-    signOut(inFailure:boolean = false): Observable<any> | null {
+   * Signs out the user.
+   * @param inFailure - Indicates if the sign out is due to a failure.
+   * @returns An observable or null.
+   */
+    signOut(inFailure: boolean = false): Observable<any> | null {
         if (this.idToken) {
-            if(inFailure){
-                this.clearTokens();
-                this.websocketService.disconnect();
-                this.auth.signOut();
+            if (inFailure) {
+                this.performSignOut();
                 return null;
             }
             return this.userService.updateUserStatus(userStatuses.offline).pipe(
+                retry(2),
                 map(() => {
-                    this.clearTokens();
-                    this.websocketService.disconnect();
-                    this.auth.signOut();
+                    this.performSignOut();
+                }),
+                catchError(() => {
+                    this.signOut(true);
+                    return of(null);
                 })
             );
         }
         return null;
     }
+
+    /**
+     * Performs the sign out actions.
+     */
+    private performSignOut(): void {
+        this.clearTokens();
+        this.websocketService.disconnect();
+        this.auth.signOut();
+    }
+
 
     /**
      * Clears tokens from localStorage and sessionStorage.
@@ -169,7 +182,7 @@ export class AuthenticationService {
      */
     private handleError(message: string, error: any): Observable<never> {
         console.error(message, error);
-        this.signOut()?.subscribe();
+        this.signOut(true)?.subscribe();
         throw error;
     }
 

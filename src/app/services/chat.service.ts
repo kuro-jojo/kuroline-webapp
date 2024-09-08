@@ -5,6 +5,7 @@ import { AuthenticationService } from './authentication.service';
 import { DiscussionService } from './discussion.service';
 import { Discussion } from '../_interfaces/discussion';
 import { map, Subscription, switchMap, takeUntil, tap, Subject, of } from 'rxjs';
+import { UserService } from './user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,23 +19,27 @@ export class ChatService implements OnDestroy {
         private webSocketService: WebSocketService,
         private authService: AuthenticationService,
         private discussionService: DiscussionService,
+        private userService : UserService
     ) { }
 
     /**
      * Connects to the WebSocket service and handles reconnection logic.
      */
     connect(): void {
+
+        this.webSocketService.initializeConnectionStateMonitoring()
+
         this.webSocketService.getIsConnectionOpened().pipe(
-            tap(isConnectionOpened => {
+            takeUntil(this.destroy$)
+        ).subscribe({
+            next: (isConnectionOpened) => {
                 if (!isConnectionOpened) {
                     console.log("Connection has been closed. Reconnecting...");
                     this.webSocketService.connect(this.authService.getToken()!);
                 }
-            }),
-            takeUntil(this.destroy$)
-        ).subscribe({
+            },
             error: (err) => {
-                console.error('Error in connection:', err);
+                console.error('Error while connecting to WebSocket:', err);
             }
         });
     }
@@ -68,13 +73,15 @@ export class ChatService implements OnDestroy {
      * @param discussion The discussion to update with new messages.
      * @param currentUserId The ID of the current user.
      */
-    listenForNewMessage(discussion: Discussion, currentUserId: string): void {
-        console.log('Listening to messages');
+    listenForNewMessage(discussion: Discussion): void {
+        console.log('Listening for new messages');
+        
         this.listenSubscription = this.webSocketService.getIsConnectionOpened().pipe(
             map(isConnectionOpened => !isConnectionOpened),
             switchMap(() => this.webSocketService.listenForNewMessage()),
             switchMap((message: Message) => {
-                if (currentUserId === message.receiverId && message.status !== messageStatues.read) {
+                let currentUserId = this.userService.userInfoSubject$.getValue().id;
+                if (currentUserId === message.receiverId && message.status !== messageStatues.read) {                    
                     message.status = messageStatues.read;
                     message.discussionId = discussion.id;
                     this.sendUpdatedMessage(message);
@@ -104,14 +111,13 @@ export class ChatService implements OnDestroy {
      * @param discussion The discussion to update with the list of messages.
      */
     listenForListOfMessages(discussion: Discussion): void {
-        console.log('Listening to list of messages');
+        console.log('Listening for updated messages');
         this.listenSubscription = this.webSocketService.getIsConnectionOpened().pipe(
             map(isConnectionOpened => !isConnectionOpened),
             switchMap(() => this.webSocketService.listenForListOfMessages()),
             takeUntil(this.destroy$)
         ).subscribe({
             next: (messages: Message[]) => {
-                console.log("Received list of messages:", messages);
                 messages.forEach(message => {
                     const index = discussion.messages!.findIndex(m => m.id === message.id);
                     if (index !== -1) {
@@ -130,6 +136,8 @@ export class ChatService implements OnDestroy {
      * Disconnects from the WebSocket service.
      */
     disconnect(): void {
+        console.log('Disconnecting from WebSocket');
+        this.listenSubscription?.unsubscribe();
         this.webSocketService.disconnect();
     }
 
@@ -137,8 +145,9 @@ export class ChatService implements OnDestroy {
      * Cleans up subscriptions when the service is destroyed.
      */
     ngOnDestroy(): void {
+        console.log('Destroying ChatService');
         this.destroy$.next();
         this.destroy$.complete();
-        this.listenSubscription?.unsubscribe();
+        this.disconnect();
     }
 }

@@ -24,7 +24,7 @@ export class DiscussionComponent implements OnInit, OnDestroy {
     userStatuses = userStatuses;
     messageStatues = messageStatues;
 
-    subscriptions = new Subscription();
+    subscriptions: Subscription[] = [];
 
     isEmojiPickerOpened: boolean = false;
 
@@ -38,20 +38,20 @@ export class DiscussionComponent implements OnInit, OnDestroy {
         this.initializeCurrentUser();
         this.initializeDiscussion();
     }
- 
+
     /**
      * Initializes the current user by subscribing to the user service.
      */
     private initializeCurrentUser(): void {
-        const userSubscription = this.userService.getCurrentUser().subscribe({
-            next: (user: User) => {
-                this.currentUser = user;
-            },
-            error: (error) => {
-                console.error('Error fetching current user:', error);
-            }
-        });
-        this.subscriptions.add(userSubscription);
+        this.subscriptions.push(
+            this.userService.getCurrentUser().subscribe({
+                next: (user: User) => {
+                    this.currentUser = user;                    
+                },
+                error: (error) => {
+                    console.error('Error fetching current user:', error);
+                }
+            }));
     }
 
     /**
@@ -66,19 +66,19 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      * Subscribes to the current discussion and updates the receiver and discussion details.
      */
     private subscribeToDiscussion(): void {
-        const discussionSubscription = this.discussionService.getCurrentDiscussion()
-            .pipe(
-                switchMap((discussion: Discussion | undefined) => this.handleDiscussionChange(discussion))
-            )
-            .subscribe({
-                next: (receiver: User) => {
-                    this.currentReceiver = receiver;
-                },
-                error: (error) => {
-                    console.error('Error subscribing to discussion:', error);
-                }
-            });
-        this.subscriptions.add(discussionSubscription);
+        this.subscriptions.push(
+            this.discussionService.getCurrentDiscussion()
+                .pipe(
+                    switchMap((discussion: Discussion | undefined) => this.handleDiscussionChange(discussion))
+                )
+                .subscribe({
+                    next: (receiver: User) => {
+                        this.currentReceiver = receiver;
+                    },
+                    error: (error) => {
+                        console.error('Error subscribing to discussion:', error);
+                    }
+                }))
     }
 
     /**
@@ -108,7 +108,7 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      * Connects to the current discussion to listen for new messages.
      */
     private connectToDiscussion(): void {
-        this.chatService.listenForNewMessage(this.activeDiscussion!, this.currentUser?.id ?? '');
+        this.chatService.listenForNewMessage(this.activeDiscussion!);
         this.chatService.listenForListOfMessages(this.activeDiscussion!);
     }
 
@@ -163,6 +163,7 @@ export class DiscussionComponent implements OnInit, OnDestroy {
             };
             this.chatService.sendMessage(message);
             this.messageContent = '';
+            this.isEmojiPickerOpened = false;
         }
     }
 
@@ -181,7 +182,9 @@ export class DiscussionComponent implements OnInit, OnDestroy {
      * Cleans up subscriptions and disconnects from the chat service when the component is destroyed.
      */
     ngOnDestroy(): void {
+        console.log("Destroying discussion component");
         this.chatService.disconnect();
-        this.subscriptions.unsubscribe();
+        this.discussionService.setCurrentDiscussion(undefined);
+        this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

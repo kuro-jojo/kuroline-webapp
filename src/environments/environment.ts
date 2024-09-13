@@ -1,5 +1,5 @@
 export const environment = {
-    production: true,
+    production: false,
     firebaseConfig: {
         apiKey: "",
         authDomain: "",
@@ -12,5 +12,5 @@ export const environment = {
     apiUrl: "",
     usersEndpoint: "",
     chatEndpoint: "",
-    chatWebsocketEndpoint: "",
+    chatWebsocketEndpoint: ""
 };

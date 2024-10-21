@@ -105,7 +105,10 @@
                     }
                 },
                 "deploy": {
-                  "builder": "angular-cli-ghpages:deploy"
+                  "builder": "angular-cli-ghpages:deploy",
+                  "options": {
+                        "repo": "git@github.com:kuro-jojo/kuroline-webapp.git"
+                    }
                 }
             }
         }

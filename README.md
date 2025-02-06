@@ -2,6 +2,8 @@
 
 Kuroline is a real-time chat web application built using Angular. It leverages WebSocket for real-time communication and provides a seamless chat experience. This application supports user authentication, message sending, and message status updates.
 
+The backend is located here : [spring-kuroline](https://github.com/kuro-jojo/kuroline-springboot)
+
 ## Features
 
 - **Real-time Messaging**: Send and receive messages in real-time using WebSocket.
